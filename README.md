@@ -7,21 +7,6 @@ Medix - Painel de Gestão de Unidades de Saúde
 >
 > Desenvolvido para o Challenge FIAP em parceria com a Oracle.
 
-
-📜 Índice
----------
-
--   [🎯 Objetivo e Escopo](https://www.google.com/search?q=%23-objetivo-e-escopo "null")
-
--   [✨ Funcionalidades](https://www.google.com/search?q=%23-funcionalidades "null")
-
--   [🏛️ Arquitetura](https://www.google.com/search?q=%23%EF%B8%8F-arquitetura "null")
-
--   [🛠️ Tecnologias Utilizadas](https://www.google.com/search?q=%23%EF%B8%8F-tecnologias-utilizadas "null")
-
--   [🚀 Como Executar o Projeto](https://www.google.com/search?q=%23-como-executar-o-projeto "null")
-  
-
 👥 Integrantes do Grupo
 -----------------------
 
