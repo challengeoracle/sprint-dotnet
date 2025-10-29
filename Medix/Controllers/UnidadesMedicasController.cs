@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Medix.Data;
 using Medix.Models;
+using Medix.ViewModels;
 
 namespace Medix.Controllers
 {
@@ -52,24 +53,37 @@ namespace Medix.Controllers
         [HttpGet("nova")] // Rota para exibir o formulário de criação
         public IActionResult Create()
         {
-            return View();
+            // Agora retorna o ViewModel vazio
+            return View(new CreateUnidadeViewModel());
         }
 
         // POST: UnidadesMedicas/Create
         [HttpPost("nova")] // Rota para receber os dados do formulário de criação
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Nome,CNPJ,Endereco,Telefone,EmailAdmin,Status")] UnidadeMedica unidadeMedica)
+        // Agora recebe o ViewModel, ajustei o Bind
+        public async Task<IActionResult> Create([Bind("Nome,CNPJ,Endereco,Telefone,EmailAdmin,Status")] CreateUnidadeViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                // A data de cadastro é definida automaticamente pelo servidor
-                unidadeMedica.DataCadastro = DateTime.Now;
+                // Mapear ViewModel para Model
+                var unidadeMedica = new UnidadeMedica
+                {
+                    Nome = viewModel.Nome,
+                    CNPJ = viewModel.CNPJ,
+                    Endereco = viewModel.Endereco,
+                    Telefone = viewModel.Telefone,
+                    EmailAdmin = viewModel.EmailAdmin,
+                    Status = viewModel.Status,
+                    // A data de cadastro é definida automaticamente pelo servidor
+                    DataCadastro = DateTime.Now
+                };
 
                 _context.Add(unidadeMedica);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(unidadeMedica);
+            // Retorna a view com o viewModel preenchido se a validação falhar
+            return View(viewModel);
         }
 
         // GET: UnidadesMedicas/Edit/5
@@ -87,15 +101,29 @@ namespace Medix.Controllers
                 return NotFound();
             }
 
-            return View(unidadeMedica);
+            // Mapear Model para ViewModel
+            var viewModel = new EditUnidadeViewModel
+            {
+                Id = unidadeMedica.Id,
+                Nome = unidadeMedica.Nome,
+                CNPJ = unidadeMedica.CNPJ,
+                Endereco = unidadeMedica.Endereco,
+                Telefone = unidadeMedica.Telefone,
+                EmailAdmin = unidadeMedica.EmailAdmin,
+                Status = unidadeMedica.Status,
+                DataCadastro = unidadeMedica.DataCadastro // Mantido para exibição
+            };
+
+            return View(viewModel);
         }
 
         // POST: UnidadesMedicas/Edit/5
         [HttpPost("editar/{id:int}")] // Rota para receber os dados do formulário de edição
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,CNPJ,Endereco,Telefone,EmailAdmin,Status,DataCadastro")] UnidadeMedica unidadeMedica)
+        // Agora recebe o ViewModel, ajustei o Bind
+        public async Task<IActionResult> Edit(int id, EditUnidadeViewModel viewModel)
         {
-            if (id != unidadeMedica.Id)
+            if (id != viewModel.Id)
             {
                 return NotFound();
             }
@@ -104,12 +132,28 @@ namespace Medix.Controllers
             {
                 try
                 {
+                    // Buscar a entidade original
+                    var unidadeMedica = await _context.UnidadesMedicas.FindAsync(id);
+                    if (unidadeMedica == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Atualizar a entidade com dados do ViewModel
+                    unidadeMedica.Nome = viewModel.Nome;
+                    unidadeMedica.CNPJ = viewModel.CNPJ;
+                    unidadeMedica.Endereco = viewModel.Endereco;
+                    unidadeMedica.Telefone = viewModel.Telefone;
+                    unidadeMedica.EmailAdmin = viewModel.EmailAdmin;
+                    unidadeMedica.Status = viewModel.Status;
+                    // DataCadastro não muda na edição
+
                     _context.Update(unidadeMedica);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UnidadeMedicaExists(unidadeMedica.Id))
+                    if (!UnidadeMedicaExists(viewModel.Id))
                     {
                         return NotFound();
                     }
@@ -120,7 +164,8 @@ namespace Medix.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(unidadeMedica);
+            // Retorna a view com o viewModel preenchido se a validação falhar
+            return View(viewModel);
         }
 
         // GET: UnidadesMedicas/Delete/5
