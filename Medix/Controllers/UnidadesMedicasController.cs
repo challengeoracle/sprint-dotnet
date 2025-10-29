@@ -25,9 +25,64 @@ namespace Medix.Controllers
 
         // GET: UnidadesMedicas
         [HttpGet("")] // Rota para a listagem (Index)
-        public async Task<IActionResult> Index()
+        // parâmetros pra busca, filtro, ordenação e paginação
+        public async Task<IActionResult> Index(
+            string? searchString,
+            StatusUnidade? status,
+            string sortOrder,
+            int? pageNumber)
         {
-            return View(await _context.UnidadesMedicas.ToListAsync());
+            // Guarda os filtros e ordenação pra usar nos links da view
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NomeSortParam"] = String.IsNullOrEmpty(sortOrder) ? "nome_desc" : "";
+            ViewData["DataSortParam"] = sortOrder == "Data" ? "data_desc" : "Data";
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentStatus"] = status;
+
+            // Começa a query no banco
+            var query = _context.UnidadesMedicas.AsQueryable();
+
+            // Filtro de busca por nome
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(u => u.Nome.Contains(searchString));
+            }
+
+            // Filtro por status
+            if (status.HasValue)
+            {
+                query = query.Where(u => u.Status == status.Value);
+            }
+
+            // Ordenação
+            switch (sortOrder)
+            {
+                case "nome_desc":
+                    query = query.OrderByDescending(u => u.Nome);
+                    break;
+                case "Data":
+                    query = query.OrderBy(u => u.DataCadastro);
+                    break;
+                case "data_desc":
+                    query = query.OrderByDescending(u => u.DataCadastro);
+                    break;
+                default:
+                    query = query.OrderBy(u => u.Nome);
+                    break;
+            }
+
+            // Paginação
+            int pageSize = 10;
+            var count = await query.CountAsync();
+            var items = await query.Skip(((pageNumber ?? 1) - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            // Passa os dados da paginação pra View
+            ViewData["PageNumber"] = pageNumber ?? 1;
+            ViewData["TotalPages"] = (int)Math.Ceiling(count / (double)pageSize);
+            ViewData["HasPreviousPage"] = (pageNumber ?? 1) > 1;
+            ViewData["HasNextPage"] = (pageNumber ?? 1) < (int)Math.Ceiling(count / (double)pageSize);
+
+            return View(items); // Envia só os itens da página atual pra View
         }
 
         // GET: UnidadesMedicas/Details/5

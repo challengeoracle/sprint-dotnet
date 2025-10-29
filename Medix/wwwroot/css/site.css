@@ -494,3 +494,47 @@ footer.footer {
 .card-footer.text-center {
     text-align: center;
 }
+
+/* --- 9. ESTILOS DA BARRA DE FILTRO (INDEX) --- */
+
+.filter-bar {
+    background-color: var(--medix-50);
+    border-bottom: 1px solid var(--medix-100);
+}
+
+    .filter-bar .form-control {
+        background-color: white;
+    }
+
+/* Botão de "Limpar" com estilo vazado */
+.btn-outline-secondary {
+    border-color: var(--medix-300);
+    color: var(--medix-700);
+}
+
+    .btn-outline-secondary:hover {
+        background-color: var(--medix-200);
+        border-color: var(--medix-300);
+        color: var(--medix-800);
+    }
+
+/* Links de ordenação no cabeçalho da tabela */
+.table thead th a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
+}
+
+    .table thead th a:hover {
+        color: var(--medix-600);
+    }
+
+/* Controles de paginação */
+.pagination .page-link {
+    color: var(--medix-600);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #e9ecef;
+}

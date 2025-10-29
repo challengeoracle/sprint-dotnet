@@ -2,7 +2,16 @@
 
 @{
     ViewData["Title"] = "Unidades Médicas";
-    ViewData["HideFooter"] = true;
+
+    // Recupera os valores para a paginação e filtros
+    var currentSort = ViewData["CurrentSort"] as string;
+    var currentFilter = ViewData["CurrentFilter"] as string;
+    var currentStatus = ViewData["CurrentStatus"] as StatusUnidade?;
+
+    var pageNumber = (int)ViewData["PageNumber"];
+    var totalPages = (int)ViewData["TotalPages"];
+    var hasPreviousPage = (bool)ViewData["HasPreviousPage"];
+    var hasNextPage = (bool)ViewData["HasNextPage"];
 }
 
 <div class="card">
@@ -13,15 +22,52 @@
         </a>
     </div>
 
+    <div class="card-body filter-bar">
+        <form asp-action="Index" method="get">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <input type="text" name="searchString" value="@currentFilter" class="form-control" placeholder="Buscar por nome..." />
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-control" asp-items="Html.GetEnumSelectList<StatusUnidade>()">
+                        <option value="">Todos os Status</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex">
+                    <button type="submit" class="btn btn-secondary flex-grow-1">Filtrar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-2" title="Limpar Filtros">Limpar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>@Html.DisplayNameFor(model => model.Nome)</th>
-                        <th>@Html.DisplayNameFor(model => model.CNPJ)</th>
-                        <th>@Html.DisplayNameFor(model => model.Status)</th>
-                        <th>Data de Cadastro</th>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewData["NomeSortParam"]"
+                               asp-route-searchString="@currentFilter"
+                               asp-route-status="@currentStatus">
+                                @Html.DisplayNameFor(model => model.Nome)
+                            </a>
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CNPJ)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Status)
+                        </th>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@ViewData["DataSortParam"]"
+                               asp-route-searchString="@currentFilter"
+                               asp-route-status="@currentStatus">
+                                Data de Cadastro
+                            </a>
+                        </th>
                         <th></th>
                     </tr>
                 </thead>
@@ -38,7 +84,6 @@
                                         StatusUnidade.Ativa => "status-ativa",
                                         StatusUnidade.Inativa => "status-inativa",
                                         StatusUnidade.Suspensa => "status-suspensa",
-                                        StatusUnidade.EmTeste => "status-emteste",
                                         _ => ""
                                     };
                                 }
@@ -55,5 +100,39 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <span>
+            Página @pageNumber de @totalPages
+        </span>
+        <nav>
+            <ul class="pagination mb-0">
+                @{
+                    var prevDisabled = !hasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !hasNextPage ? "disabled" : "";
+                }
+                <li class="page-item @prevDisabled">
+                    <a asp-action="Index"
+                       asp-route-sortOrder="@currentSort"
+                       asp-route-searchString="@currentFilter"
+                       asp-route-status="@currentStatus"
+                       asp-route-pageNumber="@(pageNumber - 1)"
+                       class="page-link">
+                        Anterior
+                    </a>
+                </li>
+                <li class="page-item @nextDisabled">
+                    <a asp-action="Index"
+                       asp-route-sortOrder="@currentSort"
+                       asp-route-searchString="@currentFilter"
+                       asp-route-status="@currentStatus"
+                       asp-route-pageNumber="@(pageNumber + 1)"
+                       class="page-link">
+                        Próximo
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
