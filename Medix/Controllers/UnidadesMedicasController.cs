@@ -12,6 +12,7 @@ using Medix.Models;
 namespace Medix.Controllers
 {
     [Authorize]
+    [Route("unidades")] // Prefixo para todas as rotas nesse controller
     public class UnidadesMedicasController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,12 +23,14 @@ namespace Medix.Controllers
         }
 
         // GET: UnidadesMedicas
+        [HttpGet("")] // Rota para a listagem (Index)
         public async Task<IActionResult> Index()
         {
             return View(await _context.UnidadesMedicas.ToListAsync());
         }
 
         // GET: UnidadesMedicas/Details/5
+        [HttpGet("detalhes/{id:int}")] // Rota para Detalhes
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,17 +49,16 @@ namespace Medix.Controllers
         }
 
         // GET: UnidadesMedicas/Create
+        [HttpGet("nova")] // Rota para exibir o formulário de criação
         public IActionResult Create()
         {
-            // A linha do ViewBag foi removida, pois a View agora usa o @Html.GetEnumSelectList
             return View();
         }
 
         // POST: UnidadesMedicas/Create
-        [HttpPost]
+        [HttpPost("nova")] // Rota para receber os dados do formulário de criação
         [ValidateAntiForgeryToken]
-        // O campo "DataCadastro" foi removido do [Bind]
-        public async Task<IActionResult> Create([Bind("Id,Nome,CNPJ,Endereco,Telefone,EmailAdmin,Status")] UnidadeMedica unidadeMedica)
+        public async Task<IActionResult> Create([Bind("Nome,CNPJ,Endereco,Telefone,EmailAdmin,Status")] UnidadeMedica unidadeMedica)
         {
             if (ModelState.IsValid)
             {
@@ -71,6 +73,7 @@ namespace Medix.Controllers
         }
 
         // GET: UnidadesMedicas/Edit/5
+        [HttpGet("editar/{id:int}")] // Rota para exibir o formulário de edição
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -84,13 +87,11 @@ namespace Medix.Controllers
                 return NotFound();
             }
 
-            // A linha do ViewBag foi removida para manter a consistência com a página Create.
-            // É recomendado que a sua View Edit.cshtml também use @Html.GetEnumSelectList.
             return View(unidadeMedica);
         }
 
         // POST: UnidadesMedicas/Edit/5
-        [HttpPost]
+        [HttpPost("editar/{id:int}")] // Rota para receber os dados do formulário de edição
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,CNPJ,Endereco,Telefone,EmailAdmin,Status,DataCadastro")] UnidadeMedica unidadeMedica)
         {
@@ -123,6 +124,7 @@ namespace Medix.Controllers
         }
 
         // GET: UnidadesMedicas/Delete/5
+        [HttpGet("excluir/{id:int}")] // Rota para exibir a confirmação de exclusão
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -141,8 +143,10 @@ namespace Medix.Controllers
         }
 
         // POST: UnidadesMedicas/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("excluir/{id:int}")] // Rota para confirmar a exclusão
         [ValidateAntiForgeryToken]
+        // Mantido o ActionName("Delete") caso haja algum uso específico, mas a rota define a URL
+        [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var unidadeMedica = await _context.UnidadesMedicas.FindAsync(id);
