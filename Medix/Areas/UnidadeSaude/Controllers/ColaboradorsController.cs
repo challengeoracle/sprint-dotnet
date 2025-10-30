@@ -3,19 +3,20 @@ using Medix.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims; // Para pegar o ID do usuário logado
 
-namespace Medix.Controllers
+namespace Medix.Areas.UnidadeSaude.Controllers
 {
     // GARANTE QUE SÓ UTILIZADORES COM O PAPEL "UnidadeSaude" PODEM ACESSAR
     [Authorize(Roles = "UnidadeSaude")]
-    public class PacientesController : Controller
+    public class ColaboradoresController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public PacientesController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public ColaboradoresController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -27,143 +28,140 @@ namespace Medix.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
             {
-                return null; // Não deve acontecer se [Authorize] estiver ativo
+                return null;
             }
 
             var unidade = await _context.UnidadesMedicas
+                                        .AsNoTracking() // Não precisamos rastrear a unidade, só do ID
                                         .FirstOrDefaultAsync(u => u.AdministradorUserId == userId);
 
             return unidade?.Id;
         }
 
-        // GET: Pacientes
+        // GET: Colaboradores
         public async Task<IActionResult> Index()
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
-            if (unidadeId == null)
-            {
-                return Unauthorized("Usuário não está vinculado a uma unidade médica.");
-            }
+            if (unidadeId == null) return Unauthorized("Usuário não está vinculado a uma unidade médica.");
 
-            // FILTRA OS PACIENTES PARA MOSTRAR APENAS OS DAQUELA UNIDADE
-            var pacientes = await _context.Pacientes
-                                          .Where(p => p.UnidadeMedicaId == unidadeId.Value)
+            // FILTRA OS COLABORADORES PARA MOSTRAR APENAS OS DAQUELA UNIDADE
+            var colaboradores = await _context.Colaboradores
+                                          .Where(c => c.UnidadeMedicaId == unidadeId.Value)
                                           .ToListAsync();
 
-            return View(pacientes);
+            return View(colaboradores);
         }
 
-        // GET: Pacientes/Details/5
+        // GET: Colaboradores/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (id == null || unidadeId == null) return NotFound();
 
-            // FILTRA O PACIENTE PELA UNIDADE DO USUÁRIO
-            var paciente = await _context.Pacientes
+            // FILTRA PELA UNIDADE DO USUÁRIO
+            var colaborador = await _context.Colaboradores
                 .FirstOrDefaultAsync(m => m.Id == id && m.UnidadeMedicaId == unidadeId.Value);
 
-            if (paciente == null) return NotFound();
+            if (colaborador == null) return NotFound();
 
-            return View(paciente);
+            return View(colaborador);
         }
 
-        // GET: Pacientes/Create
+        // GET: Colaboradores/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Pacientes/Create
+        // POST: Colaboradores/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("NomeCompleto,CPF,DataNascimento,Email,Telefone,Endereco")] Paciente paciente)
+        public async Task<IActionResult> Create([Bind("NomeCompleto,Email,Cargo,Especialidade,RegistroProfissional")] Colaborador colaborador)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (unidadeId == null) return Unauthorized();
 
-            // VINCULA O NOVO PACIENTE À UNIDADE DO USUÁRIO LOGADO
-            paciente.UnidadeMedicaId = unidadeId.Value;
+            // VINCULA O NOVO COLABORADOR À UNIDADE DO USUÁRIO LOGADO
+            colaborador.UnidadeMedicaId = unidadeId.Value;
 
-            // Remove o Id e UnidadeMedicaId do ModelState para evitar validação desnecessária
             ModelState.Remove("UnidadeMedicaId");
             ModelState.Remove("UnidadeMedica");
 
             if (ModelState.IsValid)
             {
-                _context.Add(paciente);
+                _context.Add(colaborador);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(paciente);
+            return View(colaborador);
         }
 
-        // GET: Pacientes/Edit/5
+        // GET: Colaboradores/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (id == null || unidadeId == null) return NotFound();
 
-            // FILTRA O PACIENTE PELA UNIDADE DO USUÁRIO
-            var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId.Value);
+            // FILTRA PELA UNIDADE DO USUÁRIO
+            var colaborador = await _context.Colaboradores
+                .FirstOrDefaultAsync(c => c.Id == id && c.UnidadeMedicaId == unidadeId.Value);
 
-            if (paciente == null) return NotFound();
+            if (colaborador == null) return NotFound();
 
-            return View(paciente);
+            return View(colaborador);
         }
 
-        // POST: Pacientes/Edit/5
+        // POST: Colaboradores/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,NomeCompleto,CPF,DataNascimento,Email,Telefone,Endereco")] Paciente paciente)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,NomeCompleto,Email,Cargo,Especialidade,RegistroProfissional")] Colaborador colaborador)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
-            if (id != paciente.Id || unidadeId == null) return NotFound();
+            if (id != colaborador.Id || unidadeId == null) return NotFound();
 
-            // VINCULA O PACIENTE À UNIDADE DO USUÁRIO
-            paciente.UnidadeMedicaId = unidadeId.Value;
+            // VINCULA O COLABORADOR À UNIDADE DO USUÁRIO
+            colaborador.UnidadeMedicaId = unidadeId.Value;
             ModelState.Remove("UnidadeMedica");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // VERIFICA NOVAMENTE SE O USUÁRIO TEM PERMISSÃO para editar este paciente!!!!
-                    var hasPermission = await _context.Pacientes
-                        .AnyAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId.Value);
+                    // VERIFICA NOVAMENTE SE O USUÁRIO TEM PERMISSÃO para editar
+                    var hasPermission = await _context.Colaboradores
+                        .AnyAsync(c => c.Id == id && c.UnidadeMedicaId == unidadeId.Value);
 
                     if (!hasPermission) return NotFound();
 
-                    _context.Update(paciente);
+                    _context.Update(colaborador);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Pacientes.Any(e => e.Id == paciente.Id)) return NotFound();
+                    if (!_context.Colaboradores.Any(e => e.Id == colaborador.Id)) return NotFound();
                     else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(paciente);
+            return View(colaborador);
         }
 
-        // GET: Pacientes/Delete/5
+        // GET: Colaboradores/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (id == null || unidadeId == null) return NotFound();
 
-            // FILTRA O PACIENTE PELA UNIDADE DO USUÁRIO
-            var paciente = await _context.Pacientes
+            // FILTRA PELA UNIDADE DO USUÁRIO
+            var colaborador = await _context.Colaboradores
                 .FirstOrDefaultAsync(m => m.Id == id && m.UnidadeMedicaId == unidadeId.Value);
 
-            if (paciente == null) return NotFound();
+            if (colaborador == null) return NotFound();
 
-            return View(paciente);
+            return View(colaborador);
         }
 
-        // POST: Pacientes/Delete/5
+        // POST: Colaboradores/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -171,13 +169,13 @@ namespace Medix.Controllers
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (unidadeId == null) return Unauthorized();
 
-            // FILTRA O PACIENTE PELA UNIDADE DO USUÁRIO
-            var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId.Value);
+            // FILTRA PELA UNIDADE DO USUÁRIO
+            var colaborador = await _context.Colaboradores
+                .FirstOrDefaultAsync(c => c.Id == id && c.UnidadeMedicaId == unidadeId.Value);
 
-            if (paciente != null)
+            if (colaborador != null)
             {
-                _context.Pacientes.Remove(paciente);
+                _context.Colaboradores.Remove(colaborador);
                 await _context.SaveChangesAsync();
             }
 

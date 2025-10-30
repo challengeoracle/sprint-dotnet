@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Medix (Unidade)</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Medix.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar main-navbar">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas" aria-controls="menuOffcanvas">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <a class="navbar-brand navbar-brand-centered" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/MedixWithoutBg.png" alt="Medix Logo" />
+                </a>
+
+                <div class="navbar-login">
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="menuOffcanvas" aria-labelledby="menuOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="menuOffcanvasLabel">
+                <img src="~/images/MedixWithoutBg.png" alt="Medix Logo" style="height: 30px;" />
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="UnidadeSaude" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="UnidadeSaude" asp-controller="Pacientes" asp-action="Index">Gerir Pacientes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="UnidadeSaude" asp-controller="Colaboradores" asp-action="Index">Gerir Colaboradores</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    @if (ViewData["HideFooter"] == null)
+    {
+        <footer class="footer text-muted">
+            <div class="container">
+                &copy; 2025 - Medix
+            </div>
+        </footer>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
