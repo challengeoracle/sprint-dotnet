@@ -14,14 +14,27 @@ namespace Medix.ViewModels
         public string CNPJ { get; set; }
 
         public string? Endereco { get; set; }
-
         public string? Telefone { get; set; }
 
-        [Required(ErrorMessage = "O e-mail do administrador é obrigatório.")]
+        [Required(ErrorMessage = "O e-mail de contato é obrigatório.")]
         [EmailAddress(ErrorMessage = "O formato do e-mail não é válido.")]
+        [Display(Name = "E-mail de Contato (Admin)")]
         public string EmailAdmin { get; set; }
 
         [Required(ErrorMessage = "O status é obrigatório.")]
         public StatusUnidade Status { get; set; }
+
+        // --- NOVOS CAMPOS PARA O LOGIN DA UNIDADE ---
+
+        [Required(ErrorMessage = "O e-mail de acesso é obrigatório.")]
+        [EmailAddress(ErrorMessage = "O formato do e-mail não é válido.")]
+        [Display(Name = "E-mail de Acesso (para Login da Unidade)")]
+        public string EmailAcesso { get; set; }
+
+        [Required(ErrorMessage = "A senha de acesso é obrigatória.")]
+        [StringLength(100, ErrorMessage = "A senha deve ter no mínimo 6 caracteres.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Senha de Acesso (para Login da Unidade)")]
+        public string SenhaAcesso { get; set; }
     }
 }

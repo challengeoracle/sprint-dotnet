@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Cadastrar Nova Unidade";
-    ViewData["HideFooter"] = true;
+    ViewData["HideFooter"] = true; // Esconde o rodapé principal
 }
 
 <div class="auth-container">
@@ -40,8 +40,8 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="EmailAdmin">E-mail do Administrador</label>
-            <input asp-for="EmailAdmin" class="form-control" placeholder="admin@unidade.com" />
+            <label asp-for="EmailAdmin">E-mail de Contato (Admin)</label>
+            <input asp-for="EmailAdmin" class="form-control" placeholder="contato@unidade.com" />
             <span asp-validation-for="EmailAdmin" class="text-danger"></span>
         </div>
 
@@ -51,6 +51,22 @@
                 <option selected="selected" value="">Selecione um status</option>
             </select>
             <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="auth-subtitle mb-3 text-start">Criar Acesso para a Unidade</div>
+
+        <div class="form-group">
+            <label asp-for="EmailAcesso"></label>
+            <input asp-for="EmailAcesso" class="form-control" placeholder="login.unidade@email.com" />
+            <span asp-validation-for="EmailAcesso" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="SenhaAcesso"></label>
+            <input asp-for="SenhaAcesso" class="form-control" placeholder="Crie uma senha forte" />
+            <span asp-validation-for="SenhaAcesso" class="text-danger"></span>
         </div>
 
         <button type="submit" class="w-100 btn btn-primary">Salvar Unidade</button>

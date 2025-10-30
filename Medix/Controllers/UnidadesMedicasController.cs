@@ -9,23 +9,27 @@ using Microsoft.EntityFrameworkCore;
 using Medix.Data;
 using Medix.Models;
 using Medix.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace Medix.Controllers
 {
-    [Authorize]
+    [Authorize] // Só a equipe logada pode mexer aqui
     [Route("unidades")] // Prefixo para todas as rotas nesse controller
     public class UnidadesMedicasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        // Adicionei o UserManager e o RoleManager
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public UnidadesMedicasController(ApplicationDbContext context)
+        public UnidadesMedicasController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager; // Injeção de dependência
         }
 
         // GET: UnidadesMedicas
         [HttpGet("")] // Rota para a listagem (Index)
-        // parâmetros pra busca, filtro, ordenação e paginação
+        // Ação do Index com busca, filtro, ordenação e paginação
         public async Task<IActionResult> Index(
             string? searchString,
             StatusUnidade? status,
@@ -39,7 +43,6 @@ namespace Medix.Controllers
             ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentStatus"] = status;
 
-            // Começa a query no banco
             var query = _context.UnidadesMedicas.AsQueryable();
 
             // Filtro de busca por nome
@@ -66,7 +69,7 @@ namespace Medix.Controllers
                 case "data_desc":
                     query = query.OrderByDescending(u => u.DataCadastro);
                     break;
-                default:
+                default: // Padrão é ordenar por nome ASC
                     query = query.OrderBy(u => u.Nome);
                     break;
             }
@@ -116,26 +119,51 @@ namespace Medix.Controllers
         [HttpPost("nova")] // Rota para receber os dados do formulário de criação
         [ValidateAntiForgeryToken]
         // Agora recebe o ViewModel, ajustei o Bind
-        public async Task<IActionResult> Create([Bind("Nome,CNPJ,Endereco,Telefone,EmailAdmin,Status")] CreateUnidadeViewModel viewModel)
+        public async Task<IActionResult> Create(CreateUnidadeViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                // Mapear ViewModel para Model
-                var unidadeMedica = new UnidadeMedica
+                // 1. Criar o usuário de acesso para a unidade
+                var user = new IdentityUser
                 {
-                    Nome = viewModel.Nome,
-                    CNPJ = viewModel.CNPJ,
-                    Endereco = viewModel.Endereco,
-                    Telefone = viewModel.Telefone,
-                    EmailAdmin = viewModel.EmailAdmin,
-                    Status = viewModel.Status,
-                    // A data de cadastro é definida automaticamente pelo servidor
-                    DataCadastro = DateTime.Now
+                    UserName = viewModel.EmailAcesso,
+                    Email = viewModel.EmailAcesso,
+                    EmailConfirmed = true // Já crio como confirmado
                 };
 
-                _context.Add(unidadeMedica);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var result = await _userManager.CreateAsync(user, viewModel.SenhaAcesso);
+
+                if (result.Succeeded)
+                {
+                    // 2. Se o usuário foi criado, adicionar ele ao Papel "UnidadeSaude"
+                    await _userManager.AddToRoleAsync(user, "UnidadeSaude");
+
+                    // 3. Mapear ViewModel para Model
+                    var unidadeMedica = new UnidadeMedica
+                    {
+                        Nome = viewModel.Nome,
+                        CNPJ = viewModel.CNPJ,
+                        Endereco = viewModel.Endereco,
+                        Telefone = viewModel.Telefone,
+                        EmailAdmin = viewModel.EmailAdmin,
+                        Status = viewModel.Status,
+                        DataCadastro = DateTime.Now,
+                        AdministradorUserId = user.Id // IMPORTANTE: Vincula o ID do usuário criado
+                    };
+
+                    _context.Add(unidadeMedica);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    // Se a criação do usuário falhou (ex: email já existe),
+                    // adiciona os erros ao ModelState e retorna pra view.
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("EmailAcesso", error.Description);
+                    }
+                }
             }
             // Retorna a view com o viewModel preenchido se a validação falhar
             return View(viewModel);
@@ -201,7 +229,7 @@ namespace Medix.Controllers
                     unidadeMedica.Telefone = viewModel.Telefone;
                     unidadeMedica.EmailAdmin = viewModel.EmailAdmin;
                     unidadeMedica.Status = viewModel.Status;
-                    // DataCadastro não muda na edição
+                    // DataCadastro e AdministradorUserId não mudam na edição simples
 
                     _context.Update(unidadeMedica);
                     await _context.SaveChangesAsync();
@@ -231,7 +259,6 @@ namespace Medix.Controllers
             {
                 return NotFound();
             }
-
             var unidadeMedica = await _context.UnidadesMedicas
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (unidadeMedica == null)
@@ -245,7 +272,6 @@ namespace Medix.Controllers
         // POST: UnidadesMedicas/Delete/5
         [HttpPost("excluir/{id:int}")] // Rota para confirmar a exclusão
         [ValidateAntiForgeryToken]
-        // Mantido o ActionName("Delete") caso haja algum uso específico, mas a rota define a URL
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
@@ -253,9 +279,9 @@ namespace Medix.Controllers
             if (unidadeMedica != null)
             {
                 _context.UnidadesMedicas.Remove(unidadeMedica);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
