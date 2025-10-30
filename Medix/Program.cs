@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Alterado de AddDefaultIdentity para AddIdentity para incluir suporte a Roles
+// Mudámos de AddDefaultIdentity para AddIdentity para incluir suporte a Roles
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -16,18 +16,16 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Configura manualmente os caminhos (Login, Logout, etc.)
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    // Define o caminho para a página de login
     options.LoginPath = $"/Identity/Account/Login";
-    // Define o caminho para a página de logout
     options.LogoutPath = $"/Identity/Account/Logout";
-    // Define o caminho para a página de acesso negado
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); // Garante que as páginas do Identity (login, etc) funcionem
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
@@ -35,6 +33,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -48,15 +47,17 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-app.MapControllerRoute(
+app.MapAreaControllerRoute(
     name: "UnidadeSaudeArea",
-    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+    areaName: "UnidadeSaude",
+    pattern: "UnidadeSaude/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Bloco para criar os papéis (Roles) e o usuário Admin na inicialização
+
+// Bloco para criar os papéis (Roles) e o utilizador Admin na inicialização
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -64,19 +65,15 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // 1. Pega o contexto do banco de dados
         var context = services.GetRequiredService<Medix.Data.ApplicationDbContext>();
 
-        // 2. Aplica as migrations (CRIA O BANCO DE DADOS SE NÃO EXISTIR)
-        // Isso vai recriar o 'HospitalManagerDb' e todas as tabelas.
         logger.LogInformation("Aplicando migrações do banco de dados...");
         await context.Database.MigrateAsync();
         logger.LogInformation("Migrações aplicadas com sucesso.");
 
-        // 3. Chama o nosso seeder para criar os papéis e o admin
-        logger.LogInformation("Criando papéis e usuário admin...");
+        logger.LogInformation("Criando papéis e utilizador admin...");
         await Medix.Data.IdentitySeedData.CreateRolesAndAdminUserAsync(services);
-        logger.LogInformation("Papéis e usuário admin criados com sucesso.");
+        logger.LogInformation("Papéis e utilizador admin criados com sucesso.");
     }
     catch (Exception ex)
     {
