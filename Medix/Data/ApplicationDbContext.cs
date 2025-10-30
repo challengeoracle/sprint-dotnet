@@ -9,8 +9,8 @@ namespace Medix.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-
-        // Mapeia o Model UnidadeMedica para uma tabela no banco chamada "UnidadesMedicas"
+        public DbSet<Paciente> Pacientes { get; set; }
+        public DbSet<Colaborador> Colaboradores { get; set; }
         public DbSet<UnidadeMedica> UnidadesMedicas { get; set; }
     }
 }
