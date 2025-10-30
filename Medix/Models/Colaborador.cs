@@ -5,8 +5,11 @@ namespace Medix.Models
 {
     public enum TipoColaborador
     {
+        [Display(Name = "Médico(a)")]
         Medico,
+        [Display(Name = "Enfermeiro(a)")]
         Enfermeiro,
+        [Display(Name = "Administrativo")]
         Administrativo
     }
 
@@ -16,10 +19,12 @@ namespace Medix.Models
 
         [Required]
         [StringLength(100)]
+        [Display(Name = "Nome Completo")]
         public string NomeCompleto { get; set; }
 
         [StringLength(100)]
         [EmailAddress]
+        [Display(Name = "E-mail")]
         public string? Email { get; set; }
 
         [Required]
@@ -29,6 +34,7 @@ namespace Medix.Models
         public string? Especialidade { get; set; } // Ex: Cardiologia, Ortopedia
 
         [StringLength(20)]
+        [Display(Name = "Registro")]
         public string? RegistroProfissional { get; set; } // Ex: CRM, COREN
 
         // --- CHAVE ESTRANGEIRA ---

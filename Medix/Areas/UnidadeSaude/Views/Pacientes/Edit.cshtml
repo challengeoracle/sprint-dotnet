@@ -1,59 +1,90 @@
 ﻿@model Medix.Models.Paciente
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Paciente";
+    ViewData["HideFooter"] = true; // Esconde o rodapé principal
 }
 
-<h1>Edit</h1>
+<div class="auth-container">
 
-<h4>Paciente</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="NomeCompleto" class="control-label"></label>
-                <input asp-for="NomeCompleto" class="form-control" />
-                <span asp-validation-for="NomeCompleto" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CPF" class="control-label"></label>
-                <input asp-for="CPF" class="form-control" />
-                <span asp-validation-for="CPF" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DataNascimento" class="control-label"></label>
-                <input asp-for="DataNascimento" class="form-control" />
-                <span asp-validation-for="DataNascimento" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Telefone" class="control-label"></label>
-                <input asp-for="Telefone" class="form-control" />
-                <span asp-validation-for="Telefone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Endereco" class="control-label"></label>
-                <input asp-for="Endereco" class="form-control" />
-                <span asp-validation-for="Endereco" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="auth-header">
+        <h1 class="auth-title">@ViewData["Title"]</h1>
+        <p class="auth-subtitle">Atualize os dados de @Model.NomeCompleto.</p>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="UnidadeMedicaId" /> <div class="form-group">
+            <label asp-for="NomeCompleto"></label>
+            <input asp-for="NomeCompleto" class="form-control" />
+            <span asp-validation-for="NomeCompleto" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="CPF"></label>
+                    <input asp-for="CPF" class="form-control" />
+                    <span asp-validation-for="CPF" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="DataNascimento"></label>
+                    <input asp-for="DataNascimento" class="form-control" placeholder="DD/MM/AAAA" type="text" />
+                    <span asp-validation-for="DataNascimento" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-7">
+                <div class="form-group">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    <label asp-for="Telefone"></label>
+                    <input asp-for="Telefone" class="form-control" />
+                    <span asp-validation-for="Telefone" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Endereco"></label>
+            <input asp-for="Endereco" class="form-control" />
+            <span asp-validation-for="Endereco" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-4 form-actions">
+            <button type="submit" value="Save" class="btn btn-primary">Salvar Alterações</button>
+            <a asp-action="Index" class="btn btn-danger">Cancelar</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://unpkg.com/imask"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var cpfInput = document.querySelector('input[name="CPF"]');
+            if(cpfInput) IMask(cpfInput, { mask: '000.000.000-00' });
+
+            var dataInput = document.querySelector('input[name="DataNascimento"]');
+            if(dataInput && dataInput.type !== 'date') IMask(dataInput, { mask: '00/00/0000' });
+
+            var telInput = document.querySelector('input[name="Telefone"]');
+            if(telInput) IMask(telInput, { mask: '(00) 00000-0000' });
+        });
+    </script>
 }

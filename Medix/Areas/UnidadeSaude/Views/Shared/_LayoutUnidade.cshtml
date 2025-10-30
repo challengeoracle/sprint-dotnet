@@ -49,7 +49,12 @@
         </div>
     </div>
 
-    <div class="container">
+    @{
+        // Decide se o layout usa "container" (fixo) ou "container-fluid" (total)
+        var containerClass = ViewData["FullWidth"] as bool? == true ? "container-fluid" : "container";
+    }
+
+    <div class="@containerClass">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

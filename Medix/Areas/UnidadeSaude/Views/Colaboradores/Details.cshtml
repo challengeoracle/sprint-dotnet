@@ -1,54 +1,51 @@
 ﻿@model Medix.Models.Colaborador
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes do Colaborador";
+    ViewData["HideFooter"] = true; // Esconde o rodapé principal
 }
 
-<h1>Details</h1>
+<div class="card">
 
-<div>
-    <h4>Colaborador</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NomeCompleto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NomeCompleto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Cargo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Cargo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Especialidade)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Especialidade)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RegistroProfissional)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RegistroProfissional)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UnidadeMedica)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UnidadeMedica.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div class="card-header">
+        <h1>@Html.DisplayFor(model => model.NomeCompleto)</h1>
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Editar</a>
+    </div>
+
+    <div class="card-body">
+        <dl class="details-list">
+            <dt>
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Cargo)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Cargo)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Especialidade)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Especialidade)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.RegistroProfissional)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RegistroProfissional)
+            </dd>
+
+        </dl>
+    </div>
+
+    <div class="card-footer">
+        <a asp-action="Index" class="action-link">Voltar para a Lista</a>
+    </div>
 </div>

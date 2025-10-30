@@ -538,3 +538,162 @@ footer.footer {
     color: #6c757d;
     background-color: #e9ecef;
 }
+
+/* --- 10. ESTILOS AVANÇADOS DO DASHBOARD --- */
+
+/* Novos Cards de Estatística (KPIs) */
+.stat-card-pro {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    border: 1px solid var(--medix-100);
+    transition: all 0.2s ease-in-out;
+}
+
+    .stat-card-pro:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+        border-color: var(--medix-200);
+    }
+
+.stat-icon-pro {
+    font-size: 2.25rem; /* Tamanho do ícone */
+    padding: 0.85rem;
+    line-height: 1;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    /* Cores dos ícones (usando suas classes de status) */
+    .stat-icon-pro.icon-pacientes {
+        color: var(--medix-600);
+        background-color: var(--medix-100);
+    }
+
+    .stat-icon-pro.icon-colaboradores {
+        color: #0c5460;
+        background-color: #d1ecf1;
+    }
+
+    .stat-icon-pro.icon-atendimentos {
+        color: #856404;
+        background-color: #FFF3CD;
+    }
+
+    .stat-icon-pro.icon-especialidades {
+        color: #596571;
+        background-color: #E9ECEF;
+    }
+
+.stat-info-pro .stat-card-number {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--medix-800);
+    line-height: 1;
+}
+
+.stat-info-pro .stat-card-label {
+    font-size: 0.9rem;
+    color: var(--medix-700);
+    margin-top: 0.35rem;
+}
+
+/* Título do Card */
+.card-title-pro {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--medix-800);
+    margin: 0;
+}
+
+/* Placeholder do Gráfico */
+.chart-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    background-color: var(--medix-50);
+    border-radius: 8px;
+    border: 2px dashed var(--medix-200);
+    color: var(--medix-400);
+    font-weight: 500;
+}
+
+/* Tabela de Atividades Recentes */
+.card .table-responsive {
+    max-height: 400px; /* Evita que a tabela fique gigante */
+}
+
+.card .table {
+    margin-bottom: 0 !important;
+}
+
+    /* Deixa o cabeçalho da tabela mais limpo */
+    .card .table th {
+        background-color: var(--medix-50);
+        border-top: none;
+        border-bottom: 1px solid var(--medix-200);
+    }
+
+    .card .table td {
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
+    }
+
+/* Card de Ações Rápidas (Sidebar) */
+.card .d-grid .btn {
+    text-align: left;
+    padding: 0.85rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+    .card .d-grid .btn i {
+        font-size: 1.2rem;
+        min-width: 20px; /* Alinha o texto */
+        text-align: center;
+    }
+
+/* Card de Avisos (Sidebar) */
+.notification-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0.25rem;
+    border-bottom: 1px solid var(--medix-100);
+}
+
+    .notification-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .notification-item:first-child {
+        padding-top: 0;
+    }
+
+.notification-icon {
+    font-size: 1.5rem;
+}
+
+.notification-body .notification-title {
+    font-weight: 600;
+    color: var(--medix-800);
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.notification-body .notification-text {
+    font-size: 0.9rem;
+    color: var(--medix-700);
+    margin-bottom: 0;
+    line-height: 1.4;
+}

@@ -48,10 +48,7 @@ namespace Medix.Areas.UnidadeSaude.Controllers
       {
         new SelectListItem { Value = "Médico", Text = "Médico" },
         new SelectListItem { Value = "Enfermeiro", Text = "Enfermeiro" },
-        new SelectListItem { Value = "Técnico de Enfermagem", Text = "Técnico de Enfermagem" },
-        new SelectListItem { Value = "Recepcionista", Text = "Recepcionista" },
         new SelectListItem { Value = "Administrativo", Text = "Administrativo" },
-        new SelectListItem { Value = "Outro", Text = "Outro" }
       };
 
             ViewData["Cargos"] = new SelectList(cargos, "Value", "Text", cargoSelecionado);
