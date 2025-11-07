@@ -36,20 +36,8 @@
                         Lembrar de mim
                     </label>
                 </div>
-                <div>
-                    <a id="forgot-password" asp-page="./ForgotPassword" class="auth-link small">Esqueceu sua senha?</a>
-                </div>
-            </div>
-
             <div>
                 <button id="login-submit" type="submit" class="w-100 btn btn-primary">Entrar</button>
-            </div>
-
-            <div class="auth-footer mt-4">
-                <p>
-                    Não tem uma conta?
-                    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="auth-link">Crie uma agora</a>
-                </p>
             </div>
         </form>
 
