@@ -1,182 +1,190 @@
-Medix - Painel de Gestão de Unidades de Saúde
-=============================================
+# 🏥 Medix - Plataforma de Gestão de Saúde
 
-### Painel administrativo interno para o gerenciamento completo do ciclo de vida de unidades de saúde parceiras.
+### Painel administrativo B2B para o gerenciamento do ecossistema de saúde, separando a gestão interna da Medix da gestão das unidades parceiras.
 
-> Projeto web desenvolvido com **ASP.NET Core MVC**, pensado como uma ferramenta de back office segura para a equipe interna da Medix administrar clínicas e hospitais parceiros: cadastro inicial, gerenciamento e permissões de acesso ao ecossistema principal da Medix.
+> Projeto web desenvolvido com **ASP.NET Core MVC** e **ASP.NET Core Web API**, implementando uma arquitetura multitenant baseada em papéis (Roles).  
+> O sistema provê um painel seguro para a **Equipe Medix** administrar unidades de saúde parceiras e um portal separado (Área) para que cada **Unidade de Saúde** possa gerir os seus próprios pacientes e colaboradores.  
 >
-> Desenvolvido para o Challenge FIAP em parceria com a Oracle.
+> Desenvolvido para o **Challenge FIAP em parceria com a Oracle**.
 
-👥 Integrantes do Grupo
------------------------
+---
 
--   **Arthur Thomas Mariano de Souza (RM 561061)** --- Responsável pelas matérias de IoT & IA Generativa, .NET e Mobile
+## 👥 Integrantes do Grupo
 
--   **Davi Cavalcanti Jorge (RM 559873)** --- Responsável pelas matérias de Compliance & Q.A, DevOps e Mobile
+- **Arthur Thomas Mariano de Souza (RM 561061)** — Responsável pelas matérias de *IoT & IA Generativa, .NET e Mobile*  
+- **Davi Cavalcanti Jorge (RM 559873)** — Responsável pelas matérias de *Compliance & Q.A, DevOps e Mobile*  
+- **Mateus da Silveira Lima (RM 559728)** — Responsável pelas matérias de *Banco de Dados, Java e Mobile*  
 
--   **Mateus da Silveira Lima (RM 559728)** --- Responsável pelas matérias de Banco de Dados, Java e Mobile
-  
+---
 
-🎯 Objetivo e Escopo
---------------------
+## 🎯 Objetivo e Escopo
 
-O objetivo principal deste sistema é centralizar e simplificar a gestão de unidades de saúde parceiras. Através de um painel seguro, a equipe interna pode executar todo o ciclo de vida de um parceiro, desde o cadastro inicial e configuração de seus gestores até a desativação.
+O objetivo evoluiu para uma plataforma de **dois níveis**:
 
-Isso garante controle de acesso rigoroso e organizado, assegurando que apenas entidades autorizadas e corretamente configuradas possam interagir com as APIs e serviços principais da Medix.
+1. **Painel da Equipe Medix (Admin):** Ferramenta de *back-office* para a equipe interna da Medix administrar o ciclo de vida das unidades de saúde parceiras, incluindo a criação das suas contas de acesso.  
+2. **Portal da Unidade de Saúde (Cliente):** Área dedicada e segura onde cada unidade (hospital ou clínica) pode fazer login para gerir os seus próprios dados operacionais, como o registro de pacientes e a gestão de colaboradores.
 
+Isso garante um **ecossistema seguro**, onde os dados de cada unidade são isolados e a **Equipe Medix mantém o controle administrativo global**.
 
-✨ Funcionalidades
------------------
+---
 
-### 🏥 Gestão de Unidades de Saúde
+### 🔑 (IMPORTANTE) Primeiro Acesso (Equipe Medix)
 
--   [x] CRUD completo de unidades.
+A aplicação estará disponível em:
+`https://localhost:xxxx`
 
--   [x] Gerenciamento de status da unidade (Ativa, Inativa, Em Manutenção) com interface intuitiva.
+*(OBRIGATÓRIO)* Use o login pré-criado para a equipe para poder começar:
 
-### 🔐 Sistema de Autenticação e Autorização
+* **Email:** `admin@medix.com`
+* **Senha:** `Medix123@`
 
--   [x] Login e registro para a equipe interna utilizando **ASP.NET Core Identity**.
+---
 
--   [x] Contas individuais para auditoria e segurança aprimorada.
+## ✨ Funcionalidades (Sprint 2)
 
--   [x] Proteção de rotas --- apenas usuários autenticados acessam o painel.
+### 🔐 Sistema de Autenticação e Papéis (Roles)
+
+- [x] **Dois Papéis de Acesso:**
+  - `EquipeMedix`: Acesso total ao dashboard administrativo principal.
+  - `UnidadeSaude`: Acesso restrito ao dashboard e ferramentas da sua própria unidade.
+- [x] **Login Inteligente:** Redireciona automaticamente para o dashboard correto (`/Home` ou `/UnidadeSaude/Dashboard`).
+- [x] **Registro Privado:** Apenas a Equipe Medix pode criar contas de unidades de saúde.
+- [x] **Criação de Conta Admin via Seed:** Usuário `admin@medix.com` é criado automaticamente na inicialização.
+
+---
+
+### 📊 Dashboards (Painéis de Controle)
+
+- [x] **Dashboard da Equipe Medix:** Estatísticas globais e gráfico de distribuição.
+- [x] **Dashboard da Unidade de Saúde:** Estatísticas específicas da unidade logada (pacientes, colaboradores, etc.).
+
+---
+
+### 🏥 Gestão (Equipe Medix)
+
+- [x] **CRUD de Unidades Médicas:** Criar, listar, editar e excluir unidades.  
+- [x] **Criação de Login da Unidade:** Campos para definir o e-mail e senha do administrador da unidade.  
+- [x] **Busca e Paginação:** Filtros, ordenação e paginação *server-side*.  
+
+---
+
+### 🩺 Gestão (Unidade de Saúde)
+
+- [x] **CRUD de Pacientes:** Cada unidade só gerencia seus próprios pacientes.  
+- [x] **CRUD de Colaboradores:** Cada unidade só gerencia seus próprios colaboradores.  
+- [x] **Isolamento de Dados:** Nenhuma unidade pode acessar dados de outra.  
+
+---
+
+### 🚀 API (RESTful)
+
+- [x] **Endpoint `/api/unidades`:** Retorna dados das unidades de saúde.  
+- [x] **Funcionalidades:** Filtros, ordenação e paginação.  
+- [x] **HATEOAS:** Links hipermídia nas respostas (self, next, previous, update, delete).  
+
+---
 
 ### 🧭 Interface de Usuário
 
--   [x] Interface administrativa limpa, funcional e intuitiva.
+- [x] **Layouts Separados:**  
+  `_Layout.cshtml` (Equipe Medix) e `_LayoutUnidade.cshtml` (Unidade de Saúde).  
+- [x] **Rotas Personalizadas:** URLs amigáveis (`/unidades/nova`, `/UnidadeSaude/Pacientes/Create`).  
+- [x] **Design Profissional:** Interface moderna com **Bootstrap 5** e **Chart.js**.  
 
--   [x] Localização em Português (Brasil).
+---
 
--   [x] Design responsivo com **Bootstrap 5**.
-        
+## 🏛️ Arquitetura
 
-🏛️ Arquitetura
----------------
+O projeto segue princípios da **Clean Architecture** e utiliza **MVC com Áreas (Areas)** para separar `EquipeMedix` e `UnidadeSaude`.
 
-O projeto segue princípios da **Clean Architecture**, buscando separação de responsabilidades, alta coesão, baixo acoplamento e testabilidade. A regra de dependência: camadas externas apontam para as internas.
-
-``` mermaid
+```mermaid
 graph TD
-    A[Presentation] --> B[Application]
-    D[Infrastructure] --> B
-    B --> C[Domain]
+    A[Apresentacao MVC] --> B[Aplicacao]
+    AA[Apresentacao Area UnidadeSaude] --> B
+    E[Apresentacao Web API] --> B
+    D[Infraestrutura] --> B
+    B --> C[Dominio]
+````
 
-```
+---
 
 ### 🧩 Camadas
 
-#### Domínio (Domain)
+#### **Domínio (Domain)**
 
--   Entidades (ex.: UnidadeMedica, ApplicationUser)
+* Entidades: `UnidadeMedica`, `Paciente`, `Colaborador`
+* Enums e Value Objects: `StatusUnidade`, `TipoColaborador`
 
--   Enums e Value Objects (ex.: StatusUnidade)
+#### **Aplicação (Application)**
 
--   Não depende de outras camadas.
+* Casos de uso e lógica de negócio.
+* ViewModels (ex.: `DashboardViewModel`, `CreateUnidadeViewModel`)
+* DTOs (ex.: `UnidadeMedicaDto`, `LinkDto`)
 
-#### Aplicação (Application)
+#### **Infraestrutura (Infrastructure)**
 
--   Casos de uso (orquestra lógica).
+* Repositórios com **Entity Framework Core (ApplicationDbContext)**
+* Implementação do **ASP.NET Core Identity** com papéis (Roles)
 
--   Interfaces / contratos (ex.: IUnidadeMedicaRepository).
+#### **Apresentação (Presentation)**
 
-#### Infraestrutura (Infrastructure)
+* Projeto **ASP.NET Core MVC** (Equipe Medix)
+* Área **UnidadeSaude**
+* Controladores de API (`UnidadesMedicasApiController`)
 
--   Implementação de repositórios com Entity Framework Core (ApplicationDbContext).
+---
 
--   Implementação do ASP.NET Core Identity.
+## ✔️ Requisitos Funcionais (Sprint 2)
 
--   Integrações com serviços externos (e-mail, gateways, etc).
+* **[RF-01]** Autenticação de Papéis
+* **[RF-02]** Redirecionamento por Papel
+* **[RF-03]** Criação de Utilizador Vinculado
+* **[RF-04]** CRUD de Pacientes (Restrito)
+* **[RF-05]** CRUD de Colaboradores (Restrito)
+* **[RF-06]** API de Busca
+* **[RF-07]** HATEOAS
+* **[RF-08]** Busca no Front-End
 
-#### Apresentação (Presentation)
+---
 
--   Projeto ASP.NET Core MVC com Controllers, Views e ViewModels.
+## 🛠️ Tecnologias Utilizadas
 
--   Endpoints que expõem casos de uso para clientes externos.
-  
-  ---------------
-### ✔️ Requisitos Funcionais
+### 🧩 Backend
 
-Os requisitos funcionais definem o que o sistema é capaz de fazer.
+* **.NET 8**
+* **ASP.NET Core MVC (com Áreas)**
+* **ASP.NET Core Web API**
+* **Entity Framework Core 8**
+* **ASP.NET Core Identity (com Papéis)**
 
--   **[RF-01] Autenticação de Usuários:** O sistema deve permitir que os usuários se cadastrem, façam login e logout de forma segura.
+### 🗄️ Banco de Dados
 
--   **[RF-02] Gerenciamento de Conta:** Usuários autenticados devem poder gerenciar suas informações de conta, como alterar a senha.
+* **SQL Server (LocalDB para desenvolvimento)**
 
--   **[RF-03] CRUD de Unidades Médicas:** O sistema deve permitir que usuários autorizados realizem as seguintes operações sobre as unidades médicas:
+### 💻 Frontend
 
-    -   **Criar:** Adicionar novas unidades médicas ao sistema.
+* HTML5, CSS3, JavaScript
+* **Bootstrap 5**
+* **Chart.js** (dashboards)
+* **iMask.js** (máscaras de formulário)
 
-    -   **Listar/Ler:** Visualizar uma lista de todas as unidades médicas cadastradas.
+### ⚙️ Ferramentas
 
-    -   **Detalhar:** Ver os detalhes completos de uma unidade médica específica.
+* Visual Studio 2022
+* Git & GitHub
+* Postman (testes de API)
 
-    -   **Atualizar:** Editar as informações de uma unidade médica existente.
+---
 
-    -   **Excluir:** Remover uma unidade médica do sistema.
-
--   **[RF-04] Validação de Dados:** O sistema deve validar os dados inseridos nos formulários para garantir a integridade das informações.
-
----------------
-### ❌ Requisitos Não Funcionais
-
-Os requisitos não funcionais definem os critérios de qualidade e operação do sistema.
-
--   **[RNF-01] Plataforma e Tecnologia:** A aplicação deve ser construída utilizando o framework .NET 8 e ASP.NET Core MVC.
-
--   **[RNF-02] Acesso a Dados:** A persistência de dados deve ser gerenciada pelo Entity Framework Core, garantindo a abstração do banco de dados.
-
--   **[RNF-03] Segurança:**
-
-    -   As senhas dos usuários devem ser armazenadas de forma segura utilizando hashing, conforme o padrão do ASP.NET Core Identity.
-
-    -   O acesso às funcionalidades de gerenciamento de unidades médicas deve ser restrito a usuários autenticados.
-
--   **[RNF-04] Usabilidade:** A interface do usuário deve ser intuitiva e responsiva, utilizando o framework Bootstrap para se adaptar a diferentes tamanhos de tela.
-
--   **[RNF-05] Manutenibilidade:** O código deve estar organizado seguindo o padrão Model-View-Controller (MVC) para facilitar a manutenção e a evolução do projeto.
-
-
-🛠️ Tecnologias Utilizadas
---------------------------
-
-### Backend
-
--   **.NET 8**
-
--   **ASP.NET Core MVC**
-
--   **Entity Framework Core 8**
-
--   **ASP.NET Core Identity**
-
-### Banco de Dados
-
--   **SQL Server** (LocalDB para desenvolvimento)
-
-### Frontend
-
--   HTML5, CSS3, JavaScript
-
--   **Bootstrap 5**
-
-### Ferramentas
-
--   Visual Studio 2022
-
--   Git & GitHub
-  
-
-🚀 Como Executar o Projeto
---------------------------
+## 🚀 Como Executar o Projeto (Atualizado)
 
 ### ⚙️ Pré-requisitos
 
--   .NET 8 SDK
+* .NET 8 SDK
+* Visual Studio 2022 (com a carga de trabalho "ASP.NET MVC e desenvolvimento web")
+* SQL Server Express LocalDB
 
--   Visual Studio 2022 (com a carga de trabalho "ASP.NET MVC e desenvolvimento web")
-
--   SQL Server Express LocalDB (geralmente instalado com o Visual Studio)
+---
 
 ### 🧭 Passo a passo
 
@@ -229,8 +237,24 @@ Os requisitos não funcionais definem os critérios de qualidade e operação do
 
     ```
 
-7.  **Primeiro Acesso**
+   * O `Program.cs` irá:
 
-    -   A aplicação estará disponível em `https://localhost:xxxx` (a porta pode variar).
+     * Executar as *migrations*
+     * Criar o banco de dados
+     * Criar os papéis `EquipeMedix` e `UnidadeSaude`
+     * Criar o usuário admin padrão
 
-    -   Use a opção "Registrar" na página de login para criar sua primeira conta de administrador.
+
+---
+
+### 🧾 Criar Acesso (Unidade de Saúde)
+
+1. Faça login como admin
+2. Vá em **Unidades Médicas → Adicionar Nova**
+3. Preencha os campos da unidade, incluindo:
+
+   * E-mail de acesso
+   * Senha de acesso
+4. Após salvar, saia e teste o login com os dados da nova unidade.
+
+---
