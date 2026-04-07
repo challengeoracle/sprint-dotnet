@@ -234,7 +234,235 @@ p { margin-bottom: 0; }
     box-shadow: var(--shadow-sm);
 }
 
-/* --- 6. FORMULÁRIOS (AUTH & CRUD) --- */
+/* --- 6. LAYOUT SPLIT DE AUTH --- */
+
+.auth-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: white;
+    display: block;
+}
+
+.auth-split {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Painel esquerdo — branding */
+.auth-brand-panel {
+    width: 42%;
+    background: linear-gradient(155deg, var(--medix-700) 0%, var(--medix-900) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem 3.5rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.auth-brand-inner {
+    position: relative;
+    z-index: 2;
+}
+
+.auth-brand-logo img {
+    height: 160px;
+    width: auto;
+    margin-bottom: 3rem;
+}
+
+.auth-brand-text h2 {
+    font-family: var(--font-heading);
+    font-size: 1.875rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.auth-brand-text p {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.65;
+    margin-bottom: 2.5rem;
+}
+
+.auth-brand-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.auth-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    color: rgba(255,255,255,0.85);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.auth-feature-item i {
+    font-size: 1.1rem;
+    color: var(--medix-300);
+    flex-shrink: 0;
+}
+
+/* Orbs decorativas */
+.auth-brand-orb {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    z-index: 1;
+}
+
+.auth-brand-orb-1 { width: 320px; height: 320px; top: -80px;  right: -100px; }
+.auth-brand-orb-2 { width: 200px; height: 200px; bottom: 60px; right: -60px;  background: rgba(255,255,255,0.04); }
+.auth-brand-orb-3 { width: 120px; height: 120px; bottom: -40px; left: 60px;   background: rgba(255,255,255,0.05); }
+
+/* Painel direito — formulário */
+.auth-form-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    padding: 3rem 2rem;
+    position: relative;
+}
+
+.auth-form-inner {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-form-footer {
+    position: absolute;
+    bottom: 1.5rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--medix-400);
+    margin: 0;
+}
+
+/* Caixa interna do form */
+.auth-form-box {
+    width: 100%;
+}
+
+.auth-form-header {
+    margin-bottom: 2.25rem;
+}
+
+.auth-form-title {
+    font-family: var(--font-heading);
+    font-size: 1.875rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--medix-900);
+    margin-bottom: 0.4rem;
+}
+
+.auth-form-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--medix-500);
+}
+
+/* Input com ícone */
+.input-icon-wrap {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--medix-400);
+    font-size: 0.9375rem;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.form-control-icon {
+    padding-left: 2.75rem !important;
+}
+
+/* Linha "lembrar de mim" */
+.auth-remember-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+    margin-top: 0.5rem;
+}
+
+.form-check-label {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--medix-600);
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--medix-600);
+    border-color: var(--medix-600);
+}
+
+/* Botão de submit full-width */
+.btn-auth-submit {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9375rem;
+    justify-content: center;
+}
+
+/* Divisor "ou" */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.75rem 0;
+    color: var(--medix-400);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--medix-100);
+}
+
+/* Erro de validação */
+.auth-error-summary {
+    background: #fdecea;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: #842029;
+    margin-bottom: 1.25rem;
+}
+
+/* Mobile: esconde painel de branding */
+@media (max-width: 768px) {
+    .auth-brand-panel { display: none; }
+    .auth-form-panel  { padding: 2rem 1.5rem; justify-content: flex-start; padding-top: 3rem; }
+    .auth-form-inner  { max-width: 100%; }
+}
+
+/* --- 6b. FORMULÁRIOS CRUD (auth-container legado) --- */
 .auth-container {
     max-width: 440px;
     padding: 2.5rem;

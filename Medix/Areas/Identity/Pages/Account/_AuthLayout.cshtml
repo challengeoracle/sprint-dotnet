@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Medix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Medix.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+</head>
+<body class="auth-body">
+
+    <div class="auth-split">
+
+        <div class="auth-brand-panel">
+            <div class="auth-brand-inner">
+                <div class="auth-brand-logo">
+                    <img src="~/images/MedixWithoutBg.png" alt="Medix" />
+                </div>
+                <div class="auth-brand-text">
+                    <h2>Gestão de saúde inteligente</h2>
+                    <p>Unifique o controle das suas unidades médicas, pacientes e colaboradores em uma plataforma segura e moderna.</p>
+                </div>
+                <div class="auth-brand-features">
+                    <div class="auth-feature-item">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Acesso seguro por perfil</span>
+                    </div>
+                    <div class="auth-feature-item">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Monitoramento em tempo real</span>
+                    </div>
+                    <div class="auth-feature-item">
+                        <i class="bi bi-people"></i>
+                        <span>Gestão centralizada de equipes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-brand-orb auth-brand-orb-1"></div>
+            <div class="auth-brand-orb auth-brand-orb-2"></div>
+            <div class="auth-brand-orb auth-brand-orb-3"></div>
+        </div>
+
+        <div class="auth-form-panel">
+            <div class="auth-form-inner">
+                @RenderBody()
+            </div>
+            <p class="auth-form-footer">&copy; 2025 Medix. Todos os direitos reservados.</p>
+        </div>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,66 +1,66 @@
-﻿@page
+@page
 @model LoginModel
 
 @{
     ViewData["Title"] = "Entrar";
+    Layout = "~/Areas/Identity/Pages/Account/_AuthLayout.cshtml";
 }
 
-<div class="auth-container">
+<div class="auth-form-box">
 
-    <div class="auth-header">
-        <img src="~/images/MedixWithoutBg.png" alt="Medix Logo" class="auth-logo" />
-        <h1 class="auth-title">Acesse sua conta</h1>
-        <p class="auth-subtitle">Bem-vindo de volta! Preencha seus dados para continuar.</p>
+    <div class="auth-form-header">
+        <h1 class="auth-form-title">Bem-vindo de volta</h1>
+        <p class="auth-form-subtitle">Acesse sua conta para continuar.</p>
     </div>
 
-    <section>
-        <form id="account" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <form id="account" method="post">
+        <div asp-validation-summary="ModelOnly" class="auth-error-summary" role="alert"></div>
 
-            <div class="form-group">
-                <label asp-for="Input.Email">E-mail</label>
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="seuemail@exemplo.com" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+        <div class="form-group">
+            <label asp-for="Input.Email">E-mail</label>
+            <div class="input-icon-wrap">
+                <i class="bi bi-envelope input-icon"></i>
+                <input asp-for="Input.Email" class="form-control form-control-icon"
+                       autocomplete="username" placeholder="seuemail@exemplo.com" />
             </div>
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
 
-            <div class="form-group">
-                <label asp-for="Input.Password">Senha</label>
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" placeholder="Digite sua senha" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+        <div class="form-group">
+            <label asp-for="Input.Password">Senha</label>
+            <div class="input-icon-wrap">
+                <i class="bi bi-lock input-icon"></i>
+                <input asp-for="Input.Password" class="form-control form-control-icon"
+                       autocomplete="current-password" placeholder="Digite sua senha" />
             </div>
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-                <div class="form-check">
-                    <input class="form-check-input" asp-for="Input.RememberMe" />
-                    <label class="form-check-label" asp-for="Input.RememberMe">
-                        Lembrar de mim
-                    </label>
-                </div>
-            <div>
-                <button id="login-submit" type="submit" class="w-100 btn btn-primary">Entrar</button>
+        <div class="auth-remember-row">
+            <div class="form-check">
+                <input class="form-check-input" asp-for="Input.RememberMe" />
+                <label class="form-check-label" asp-for="Input.RememberMe">Lembrar de mim</label>
             </div>
-        </form>
+        </div>
 
-        @{
-            if ((Model.ExternalLogins?.Count ?? 0) > 0)
+        <button id="login-submit" type="submit" class="btn btn-primary btn-auth-submit">
+            Entrar <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+    </form>
+
+    @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+    {
+        <div class="auth-divider"><span>ou continue com</span></div>
+        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            @foreach (var provider in Model.ExternalLogins!)
             {
-                <div class="text-center my-3">
-                    <hr />
-                    <span class="text-muted small bg-medix-50 px-2" style="position: relative; top: -23px;">OU</span>
-                </div>
-                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="mt-2">
-                    <div>
-                        @foreach (var provider in Model.ExternalLogins!)
-                        {
-                            <button type="submit" class="w-100 btn btn-secondary" name="provider" value="@provider.Name" title="Entrar usando sua conta @provider.DisplayName">
-                                Entrar com @provider.DisplayName
-                            </button>
-                        }
-                    </div>
-                </form>
+                <button type="submit" class="btn btn-secondary w-100 mt-2" name="provider" value="@provider.Name">
+                    @provider.DisplayName
+                </button>
             }
-        }
-    </section>
+        </form>
+    }
+
 </div>
 
 @section Scripts {
