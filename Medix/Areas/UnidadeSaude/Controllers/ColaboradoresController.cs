@@ -56,17 +56,25 @@ namespace Medix.Areas.UnidadeSaude.Controllers
         // --- FIM DA ATUALIZAÇÃO ---
 
         // GET: Colaboradores
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pageNumber)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (unidadeId == null) return Unauthorized("Usuário não está vinculado a uma unidade médica.");
 
-            // FILTRA OS COLABORADORES PARA MOSTRAR APENAS OS DAQUELA UNIDADE
-            var colaboradores = await _context.Colaboradores
-                     .Where(c => c.UnidadeMedicaId == unidadeId.Value)
-                     .ToListAsync();
+            var query = _context.Colaboradores
+                .Where(c => c.UnidadeMedicaId == unidadeId.Value)
+                .OrderBy(c => c.NomeCompleto);
 
-            return View(colaboradores);
+            int pageSize = 10;
+            var count = await query.CountAsync();
+            var items = await query.Skip(((pageNumber ?? 1) - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            ViewData["PageNumber"]      = pageNumber ?? 1;
+            ViewData["TotalPages"]      = (int)Math.Ceiling(count / (double)pageSize);
+            ViewData["HasPreviousPage"] = (pageNumber ?? 1) > 1;
+            ViewData["HasNextPage"]     = (pageNumber ?? 1) < (int)Math.Ceiling(count / (double)pageSize);
+
+            return View(items);
         }
 
         // GET: Colaboradores/Details/5

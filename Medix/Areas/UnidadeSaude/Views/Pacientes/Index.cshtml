@@ -1,7 +1,12 @@
-﻿@model IEnumerable<Medix.Models.Paciente>
+@model IEnumerable<Medix.Models.Paciente>
 
 @{
     ViewData["Title"] = "Gerir Pacientes";
+
+    var pageNumber      = (int)(ViewData["PageNumber"] ?? 1);
+    var totalPages      = (int)(ViewData["TotalPages"] ?? 1);
+    var hasPreviousPage = (bool)(ViewData["HasPreviousPage"] ?? false);
+    var hasNextPage     = (bool)(ViewData["HasNextPage"] ?? false);
 }
 
 <div class="card">
@@ -13,23 +18,15 @@
         </a>
     </div>
 
-    <div class="card-body">
+    <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>
-                            @Html.DisplayNameFor(model => model.NomeCompleto)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Email)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Telefone)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.DataNascimento)
-                        </th>
+                        <th>@Html.DisplayNameFor(model => model.NomeCompleto)</th>
+                        <th>@Html.DisplayNameFor(model => model.Email)</th>
+                        <th>@Html.DisplayNameFor(model => model.Telefone)</th>
+                        <th>@Html.DisplayNameFor(model => model.DataNascimento)</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -37,22 +34,14 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.NomeCompleto)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Email)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Telefone)
-                            </td>
-                            <td>
-                                @item.DataNascimento?.ToString("dd/MM/yyyy")
-                            </td>
+                            <td>@Html.DisplayFor(modelItem => item.NomeCompleto)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Telefone)</td>
+                            <td>@item.DataNascimento?.ToString("dd/MM/yyyy")</td>
                             <td class="text-end">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="action-link">Editar</a>
+                                <a asp-action="Edit"    asp-route-id="@item.Id" class="action-link">Editar</a>
                                 <a asp-action="Details" asp-route-id="@item.Id" class="action-link">Detalhes</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="action-link text-danger">Excluir</a>
+                                <a asp-action="Delete"  asp-route-id="@item.Id" class="action-link text-danger">Excluir</a>
                             </td>
                         </tr>
                     }
@@ -60,4 +49,19 @@
             </table>
         </div>
     </div>
+
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <span>Página @pageNumber de @totalPages</span>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item @(!hasPreviousPage ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(pageNumber - 1)" class="page-link">Anterior</a>
+                </li>
+                <li class="page-item @(!hasNextPage ? "disabled" : "")">
+                    <a asp-action="Index" asp-route-pageNumber="@(pageNumber + 1)" class="page-link">Próximo</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
 </div>
