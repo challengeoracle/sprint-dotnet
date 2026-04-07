@@ -509,6 +509,60 @@ p { margin-bottom: 0; }
     margin-bottom: 1.25rem;
 }
 
+/* ── Animações do painel de login ── */
+@keyframes authFadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes authFadeLeft {
+    from { opacity: 0; transform: translateX(-18px); }
+    to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes authFloat {
+    0%, 100% { transform: translateY(0);     }
+    50%       { transform: translateY(-20px); }
+}
+
+/* Entradas sequenciais */
+.auth-brand-logo  { animation: authFadeUp   0.6s ease both; animation-delay: 0.05s; }
+.auth-brand-text  { animation: authFadeUp   0.6s ease both; animation-delay: 0.22s; }
+
+.auth-brand-features .auth-feature-item:nth-child(1) { animation: authFadeLeft 0.5s ease both; animation-delay: 0.40s; }
+.auth-brand-features .auth-feature-item:nth-child(2) { animation: authFadeLeft 0.5s ease both; animation-delay: 0.56s; }
+.auth-brand-features .auth-feature-item:nth-child(3) { animation: authFadeLeft 0.5s ease both; animation-delay: 0.72s; }
+
+.auth-brand-footer { animation: authFadeUp 0.5s ease both; animation-delay: 0.90s; }
+
+/* Hover nos cards de feature */
+.auth-feature-item {
+    transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+
+.auth-feature-item:hover {
+    transform: translateX(6px);
+    background: rgba(255,255,255,0.13);
+    border-color: rgba(255,255,255,0.22);
+}
+
+.auth-feature-icon {
+    transition: background 0.22s ease, transform 0.22s ease;
+}
+
+.auth-feature-item:hover .auth-feature-icon {
+    background: rgba(255,255,255,0.24);
+    transform: scale(1.08);
+}
+
+/* Orbs flutuando */
+.auth-brand-orb-1 { animation: authFloat  9s ease-in-out infinite; }
+.auth-brand-orb-2 { animation: authFloat  7s ease-in-out infinite; animation-delay: -3s; }
+.auth-brand-orb-3 { animation: authFloat 11s ease-in-out infinite; animation-delay: -6s; }
+
+/* Entrada do formulário */
+.auth-form-inner { animation: authFadeUp 0.65s ease both; animation-delay: 0.15s; }
+
 /* Mobile: esconde painel de branding */
 @media (max-width: 768px) {
     .auth-brand-panel { display: none; }
