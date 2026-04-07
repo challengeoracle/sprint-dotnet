@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Medix.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script>
+        (function () {
+            var t = localStorage.getItem('medix-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
 </head>
 <body>
     <header>
@@ -25,6 +31,12 @@
                 </a>
 
                 <div class="navbar-login">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema" title="Alternar tema escuro/claro">
+                        <span class="theme-toggle-thumb">
+                            <i class="bi bi-sun-fill theme-icon-light"></i>
+                            <i class="bi bi-moon-stars-fill theme-icon-dark"></i>
+                        </span>
+                    </button>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
