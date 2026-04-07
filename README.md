@@ -59,7 +59,7 @@ A aplicação expõe três endpoints de health check:
 | Endpoint | Verifica | Tags |
 |---|---|---|
 | `GET /health` | Todos os checks | — |
-| `GET /health/ready` | DbContext + SQL Server | `ready` |
+| `GET /health/ready` | DbContext (Oracle) | `ready` |
 | `GET /health/live` | Processo em execução | `live` |
 
 ### Exemplo de resposta JSON
@@ -69,8 +69,7 @@ A aplicação expõe três endpoints de health check:
   "status": "Healthy",
   "checks": [
     { "name": "self",              "status": "Healthy", "description": null, "duration": "00:00:00.0001" },
-    { "name": "ApplicationDbContextHealthCheck", "status": "Healthy", "description": null, "duration": "00:00:00.015" },
-    { "name": "sqlserver",         "status": "Healthy", "description": null, "duration": "00:00:00.012" }
+    { "name": "ApplicationDbContextHealthCheck", "status": "Healthy", "description": null, "duration": "00:00:00.015" }
   ]
 }
 ```
@@ -213,7 +212,7 @@ graph TD
 
 ### 🗄️ Banco de Dados
 
-* **SQL Server (LocalDB para desenvolvimento)**
+* **Oracle Database** (oracle.fiap.com.br — persistência compartilhada)
 
 ### 💻 Frontend
 

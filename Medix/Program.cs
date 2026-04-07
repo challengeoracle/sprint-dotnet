@@ -25,10 +25,7 @@ builder.Host.UseSerilog((ctx, cfg) =>
 // --- 1.1 Health Checks ---
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" })
-    .AddDbContextCheck<ApplicationDbContext>(tags: new[] { "ready" })
-    .AddSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")!,
-        tags: new[] { "ready" });
+    .AddDbContextCheck<ApplicationDbContext>(tags: new[] { "ready" });
 
 // --- 1.3 OpenTelemetry ---
 builder.Services.AddOpenTelemetry()
@@ -46,7 +43,7 @@ builder.Services.AddOpenTelemetry()
 
 // --- EF Core + Identity ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
