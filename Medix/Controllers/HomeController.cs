@@ -9,35 +9,35 @@ using System.Diagnostics;
 
 namespace Medix.Controllers
 {
-    [Authorize] // Continua a exigir login para a página principal
+    [Authorize] // Continua a exigir login para a pï¿½gina principal
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager; // Adicionado
 
-        // Injeta o UserManager para podermos verificar os papéis
+        // Injeta o UserManager para podermos verificar os papï¿½is
         public HomeController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager; // Adicionado
         }
 
-        // Ação Index agora é assíncrona para verificar o utilizador
+        // Aï¿½ï¿½o Index agora ï¿½ assï¿½ncrona para verificar o utilizador
         public async Task<IActionResult> Index()
         {
-            // Pega o utilizador que está logado
+            // Pega o utilizador que estï¿½ logado
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                // Se não encontrar o utilizador, desloga-o por segurança
+                // Se nï¿½o encontrar o utilizador, desloga-o por seguranï¿½a
                 return Challenge();
             }
 
-            // --- LÓGICA DE REDIRECIONAMENTO POR PAPEL ---
+            // --- Lï¿½GICA DE REDIRECIONAMENTO POR PAPEL ---
 
             if (await _userManager.IsInRoleAsync(user, "EquipeMedix"))
             {
-                // Se for EquipeMedix, carrega o Dashboard da Equipe (lógica antiga)
+                // Se for EquipeMedix, carrega o Dashboard da Equipe (lï¿½gica antiga)
                 var viewModel = new DashboardViewModel
                 {
                     UserName = user.UserName ?? string.Empty,
@@ -47,7 +47,7 @@ namespace Medix.Controllers
                     UnidadesSuspensas = await _context.UnidadesMedicas.CountAsync(u => u.Status == StatusUnidade.Suspensa),
                     AtividadeRecente = await _context.UnidadesMedicas
                                             .OrderByDescending(u => u.DataCadastro)
-                                            .Take(5)
+                                            .Take(3)
                                             .ToListAsync(),
                     StatusDistribution = new Dictionary<string, int>
                     {
@@ -61,11 +61,11 @@ namespace Medix.Controllers
             }
             else if (await _userManager.IsInRoleAsync(user, "UnidadeSaude"))
             {
-                // Se for UnidadeSaude, redireciona para o Dashboard da Área
+                // Se for UnidadeSaude, redireciona para o Dashboard da ï¿½rea
                 return RedirectToAction("Index", "Dashboard", new { area = "UnidadeSaude" });
             }
 
-            // Se for um utilizador logado sem papel, apenas mostra uma página de acesso negado
+            // Se for um utilizador logado sem papel, apenas mostra uma pï¿½gina de acesso negado
             return Challenge();
         }
 
