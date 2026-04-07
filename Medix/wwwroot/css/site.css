@@ -282,7 +282,7 @@ p { margin-bottom: 0; }
     font-size: 1.875rem;
     font-weight: 800;
     letter-spacing: -0.03em;
-    color: white;
+    color: var(--medix-100);
     line-height: 1.2;
     margin-bottom: 0.75rem;
 }
