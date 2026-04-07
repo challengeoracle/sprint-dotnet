@@ -4,3 +4,15 @@
 # Build e binários
 bin/
 obj/
+
+# Logs do Serilog
+logs/
+
+# Cobertura de código e resultados de teste
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Pacotes NuGet locais
+*.nupkg

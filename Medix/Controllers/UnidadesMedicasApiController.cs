@@ -1,6 +1,7 @@
 ﻿using Medix.Data;
 using Medix.Models;
 using Medix.Models.Dtos;
+using Medix.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +15,12 @@ namespace Medix.Controllers
     [Authorize]           // Garante que só usuários logados possam acessar
     public class UnidadesMedicasApiController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnidadeService _unidadeService;
         private readonly LinkGenerator _linkGenerator; // Injetado para gerar URLs
 
-        // Injeta o LinkGenerator no construtor
-        public UnidadesMedicasApiController(ApplicationDbContext context, LinkGenerator linkGenerator)
+        public UnidadesMedicasApiController(IUnidadeService unidadeService, LinkGenerator linkGenerator)
         {
-            _context = context;
+            _unidadeService = unidadeService;
             _linkGenerator = linkGenerator;
         }
 
@@ -35,48 +35,10 @@ namespace Medix.Controllers
             [FromQuery] int page = 1,                 // Página atual (padrão: 1)
             [FromQuery] int pageSize = 10)            // Itens por página (padrão: 10)
         {
-            // Validação básica dos parâmetros de paginação
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
-            if (pageSize > 100) pageSize = 100; // Limite máximo para evitar sobrecarga
+            var pagedResult = await _unidadeService.BuscarAsync(nome, status, sortBy, sortDirection, page, pageSize);
 
-            // Inicia a consulta
-            var query = _context.UnidadesMedicas.AsQueryable();
-
-            // Aplica Filtros
-            if (!string.IsNullOrWhiteSpace(nome))
-            {
-                query = query.Where(u => u.Nome.Contains(nome));
-            }
-            if (status.HasValue)
-            {
-                query = query.Where(u => u.Status == status.Value);
-            }
-
-            // Aplica Ordenação
-            Expression<Func<UnidadeMedica, object>> orderByExpression = sortBy.ToLowerInvariant() switch
-            {
-                "datacadastro" => u => u.DataCadastro,
-                _ => u => u.Nome // Padrão é ordenar por Nome
-            };
-
-            if (sortDirection.Equals("DESC", StringComparison.OrdinalIgnoreCase))
-            {
-                query = query.OrderByDescending(orderByExpression);
-            }
-            else
-            {
-                query = query.OrderBy(orderByExpression);
-            }
-
-            // Conta o total de itens ANTES da paginação
-            var totalItems = await query.CountAsync();
-
-            // Aplica Paginação
-            var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var totalItems = pagedResult.TotalCount;
+            var items = pagedResult.Items;
 
             // Mapear Model pra DTO e gerar links pra cada item
             var itemDtos = items.Select(item =>
@@ -116,7 +78,7 @@ namespace Medix.Controllers
         // Agora retorna o DTO com links
         public async Task<ActionResult<UnidadeMedicaDto>> GetUnidadeMedica(int id)
         {
-            var unidadeMedica = await _context.UnidadesMedicas.FindAsync(id);
+            var unidadeMedica = await _unidadeService.BuscarPorIdAsync(id);
 
             if (unidadeMedica == null)
             {
