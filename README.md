@@ -47,7 +47,7 @@ Funcionalidades adicionadas na Sprint 3:
 - **Health Checks** — endpoints `/health`, `/health/ready` e `/health/live` com resposta JSON detalhada
 - **Logging Estruturado (Serilog)** — logs em console e arquivo rotativo diário (`logs/medix-YYYYMMDD.log`)
 - **Tracing e Métricas (OpenTelemetry)** — rastreamento distribuído e métricas de runtime exportados para console
-- **Testes Unitários (xUnit + Moq)** — 27 testes cobrindo models, ViewModels e `UnidadeService`
+- **Testes Unitários (xUnit + Moq)** — 32 testes cobrindo models, ViewModels, `UnidadeService` e `UnidadesMedicasApiController` (com mock de `IUnidadeService` via Moq)
 - **Testes de Integração (WebApplicationFactory)** — 11 testes cobrindo API REST e health check endpoints
 
 ---
