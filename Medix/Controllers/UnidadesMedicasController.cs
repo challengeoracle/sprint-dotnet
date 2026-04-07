@@ -278,6 +278,14 @@ namespace Medix.Controllers
             var unidadeMedica = await _context.UnidadesMedicas.FindAsync(id);
             if (unidadeMedica != null)
             {
+                // Remove o usuário de acesso vinculado antes de remover a unidade
+                if (unidadeMedica.AdministradorUserId != null)
+                {
+                    var user = await _userManager.FindByIdAsync(unidadeMedica.AdministradorUserId);
+                    if (user != null)
+                        await _userManager.DeleteAsync(user);
+                }
+
                 _context.UnidadesMedicas.Remove(unidadeMedica);
                 await _context.SaveChangesAsync();
             }
