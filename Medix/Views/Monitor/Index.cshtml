@@ -1,0 +1,190 @@
+@{
+    ViewData["Title"] = "Monitor do Sistema";
+}
+
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <h1>Monitor do Sistema</h1>
+            <p class="text-muted">Status em tempo real dos serviços e infraestrutura.</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="monitor-last-updated" id="lastUpdated">Carregando...</span>
+            <button class="btn btn-secondary" id="btnRefresh" onclick="fetchAll()">
+                <i class="bi bi-arrow-clockwise" id="refreshIcon"></i>
+                Atualizar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="monitor-banner" id="bannerGeral">
+    <div class="monitor-banner-dot" id="bannerDot"></div>
+    <div>
+        <span class="monitor-banner-label" id="bannerLabel">Verificando sistema...</span>
+        <span class="monitor-banner-sub" id="bannerSub"></span>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+
+    <div class="col-12">
+        <div class="card monitor-card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="monitor-endpoint-badge">GET /health</span>
+                    <h2>Visão Geral</h2>
+                </div>
+                <span class="monitor-status-pill" id="pillGeral">—</span>
+            </div>
+            <div class="card-body p-0">
+                <div id="checksGeral" class="monitor-checks-list">
+                    <div class="monitor-skeleton"></div>
+                    <div class="monitor-skeleton"></div>
+                    <div class="monitor-skeleton"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card monitor-card h-100">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="monitor-endpoint-badge">GET /health/ready</span>
+                    <h2>Readiness</h2>
+                </div>
+                <span class="monitor-status-pill" id="pillReady">—</span>
+            </div>
+            <div class="card-body p-0">
+                <div id="checksReady" class="monitor-checks-list">
+                    <div class="monitor-skeleton"></div>
+                    <div class="monitor-skeleton"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card monitor-card h-100">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="monitor-endpoint-badge">GET /health/live</span>
+                    <h2>Liveness</h2>
+                </div>
+                <span class="monitor-status-pill" id="pillLive">—</span>
+            </div>
+            <div class="card-body p-0">
+                <div id="checksLive" class="monitor-checks-list">
+                    <div class="monitor-skeleton"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    const ICONS = {
+        'self':                 { icon: 'bi-cpu',      label: 'Processo'         },
+        'ApplicationDbContext': { icon: 'bi-layers',   label: 'Entity Framework' },
+        'sqlserver':            { icon: 'bi-database', label: 'SQL Server'       },
+    };
+
+    function getCheckMeta(name) {
+        return ICONS[name] ?? { icon: 'bi-gear', label: name };
+    }
+
+    function parseDuration(dur) {
+        if (!dur) return '—';
+        const match = dur.match(/(\d+):(\d+):(\d+)\.(\d+)/);
+        if (!match) return dur;
+        const [, h, m, s, frac] = match;
+        const ms = parseInt(h)*3600000 + parseInt(m)*60000 + parseInt(s)*1000
+                 + Math.round(parseInt(frac.padEnd(3,'0').slice(0,3)));
+        if (ms < 1)    return '< 1 ms';
+        if (ms < 1000) return `${ms} ms`;
+        return `${(ms/1000).toFixed(2)} s`;
+    }
+
+    function renderChecks(containerId, checks) {
+        const el = document.getElementById(containerId);
+        if (!checks || checks.length === 0) {
+            el.innerHTML = '<div class="monitor-empty">Nenhum check disponível.</div>';
+            return;
+        }
+        el.innerHTML = checks.map(c => {
+            const ok   = c.status === 'Healthy';
+            const meta = getCheckMeta(c.name);
+            return `
+                <div class="monitor-check-row ${ok ? '' : 'monitor-check-unhealthy'}">
+                    <div class="monitor-check-left">
+                        <span class="monitor-check-icon ${ok ? 'icon-ok' : 'icon-err'}">
+                            <i class="bi ${meta.icon}"></i>
+                        </span>
+                        <div>
+                            <div class="monitor-check-name">${meta.label}</div>
+                            <div class="monitor-check-key">${c.name}</div>
+                        </div>
+                    </div>
+                    <div class="monitor-check-right">
+                        <span class="monitor-check-duration">${parseDuration(c.duration)}</span>
+                        <span class="monitor-badge ${ok ? 'badge-ok' : 'badge-err'}">
+                            ${ok ? 'Healthy' : 'Unhealthy'}
+                        </span>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function setStatusPill(pillId, status) {
+        const el = document.getElementById(pillId);
+        const ok = status === 'Healthy';
+        el.textContent = ok ? 'Healthy' : (status ?? '—');
+        el.className   = 'monitor-status-pill ' + (ok ? 'pill-ok' : 'pill-err');
+    }
+
+    function updateBanner(status) {
+        const ok     = status === 'Healthy';
+        const banner = document.getElementById('bannerGeral');
+        const dot    = document.getElementById('bannerDot');
+        const label  = document.getElementById('bannerLabel');
+        const sub    = document.getElementById('bannerSub');
+        banner.className = 'monitor-banner ' + (ok ? 'banner-ok' : 'banner-err');
+        dot.className    = 'monitor-banner-dot ' + (ok ? 'dot-ok' : 'dot-err');
+        label.textContent = ok ? 'Todos os sistemas operacionais' : 'Degradação detectada nos serviços';
+        sub.textContent   = ok ? 'Nenhuma anomalia identificada.' : 'Verifique os checks abaixo para detalhes.';
+    }
+
+    async function fetchAll() {
+        const icon = document.getElementById('refreshIcon');
+        icon.classList.add('spin');
+        try {
+            const [geral, ready, live] = await Promise.all([
+                fetch('/health').then(r => r.json()),
+                fetch('/health/ready').then(r => r.json()),
+                fetch('/health/live').then(r => r.json()),
+            ]);
+            updateBanner(geral.status);
+            setStatusPill('pillGeral', geral.status);
+            setStatusPill('pillReady', ready.status);
+            setStatusPill('pillLive',  live.status);
+            renderChecks('checksGeral', geral.checks);
+            renderChecks('checksReady', ready.checks);
+            renderChecks('checksLive',  live.checks);
+            document.getElementById('lastUpdated').textContent =
+                'Atualizado às ' + new Date().toLocaleTimeString('pt-BR');
+        } catch (e) {
+            document.getElementById('bannerGeral').className = 'monitor-banner banner-err';
+            document.getElementById('bannerLabel').textContent = 'Erro ao comunicar com os endpoints de health.';
+            document.getElementById('bannerSub').textContent  = e.message;
+        } finally {
+            icon.classList.remove('spin');
+        }
+    }
+
+    fetchAll();
+    setInterval(fetchAll, 30000);
+</script>
+}

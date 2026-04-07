@@ -874,7 +874,215 @@ footer.footer .container { width: auto; max-width: 100%; }
 /* --- 23. RODAPÉ DO CARD CENTRALIZADO --- */
 .card-footer.text-center { text-align: center; }
 
-/* --- 24. RESPONSIVIDADE --- */
+/* --- 24. PÁGINA DE MONITOR --- */
+
+/* Banner de status geral */
+.monitor-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid transparent;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+}
+
+.banner-ok  { background-color: #D4F3EC; border-color: #A9D2C7; }
+.banner-err { background-color: #fdecea; border-color: #f5c6cb; }
+
+.monitor-banner-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dot-ok  { background-color: var(--medix-600); box-shadow: 0 0 0 3px rgba(58,143,128,0.25); animation: pulse-ok 2s infinite; }
+.dot-err { background-color: var(--medix-error); box-shadow: 0 0 0 3px rgba(228,88,101,0.25); animation: pulse-err 1.5s infinite; }
+
+@keyframes pulse-ok {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(58,143,128,0.25); }
+    50%       { box-shadow: 0 0 0 6px rgba(58,143,128,0.1);  }
+}
+
+@keyframes pulse-err {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(228,88,101,0.25); }
+    50%       { box-shadow: 0 0 0 6px rgba(228,88,101,0.1);  }
+}
+
+.monitor-banner-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--medix-900);
+    display: block;
+}
+
+.monitor-banner-sub {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    color: var(--medix-600);
+    display: block;
+    margin-top: 0.1rem;
+}
+
+/* Card de monitor */
+.monitor-card { margin-top: 0; }
+
+/* Endpoint badge */
+.monitor-endpoint-badge {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--medix-600);
+    background-color: var(--medix-100);
+    border: 1px solid var(--medix-200);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+}
+
+/* Status pill no card-header */
+.monitor-status-pill {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.3rem 0.85rem;
+    border-radius: var(--radius-pill);
+    transition: all 0.3s var(--ease-out);
+}
+
+.pill-ok  { color: #1E6B5A; background-color: #D4F3EC; }
+.pill-err { color: #842029; background-color: #f8d7da; }
+
+/* Lista de checks */
+.monitor-checks-list { display: flex; flex-direction: column; }
+
+.monitor-check-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--medix-100);
+    transition: background-color 0.12s var(--ease-out);
+    gap: 1rem;
+}
+
+.monitor-check-row:last-child  { border-bottom: none; }
+.monitor-check-row:hover       { background-color: var(--medix-50); }
+.monitor-check-unhealthy       { background-color: #fff8f8; }
+.monitor-check-unhealthy:hover { background-color: #fdecea; }
+
+.monitor-check-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.monitor-check-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.icon-ok  { color: var(--medix-600); background-color: var(--medix-100); }
+.icon-err { color: var(--medix-error); background-color: #fdecea; }
+
+.monitor-check-name {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--medix-800);
+}
+
+.monitor-check-key {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--medix-400);
+    margin-top: 0.1rem;
+    font-weight: 400;
+}
+
+.monitor-check-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.monitor-check-duration {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--medix-500);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Badge Healthy/Unhealthy */
+.monitor-badge {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-pill);
+    text-transform: uppercase;
+}
+
+.badge-ok  { color: #1E6B5A; background-color: #D4F3EC; }
+.badge-err { color: #842029; background-color: #f8d7da; }
+
+/* Skeletons de loading */
+.monitor-skeleton {
+    height: 64px;
+    background: linear-gradient(90deg, var(--medix-100) 25%, var(--medix-50) 50%, var(--medix-100) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-bottom: 1px solid var(--medix-100);
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Empty state */
+.monitor-empty {
+    padding: 2rem;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--medix-400);
+}
+
+/* Última atualização */
+.monitor-last-updated {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    color: var(--medix-400);
+    white-space: nowrap;
+}
+
+/* Spin animation no ícone de refresh */
+.spin {
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* --- 25. RESPONSIVIDADE --- */
 @media (max-width: 768px) {
     .dashboard-header h1 { font-size: 1.75rem; }
     .stat-card-number    { font-size: 2.25rem; }
