@@ -11,11 +11,6 @@ using Serilog;
 using System.Text;
 using System.Text.Json;
 
-// --- Serilog: configuração antecipada para capturar erros de startup ---
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
-
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1.2 Serilog ---
