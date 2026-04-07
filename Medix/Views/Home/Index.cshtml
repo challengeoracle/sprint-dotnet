@@ -110,45 +110,73 @@
             const labels = Object.keys(statusData);
             const data = Object.values(statusData);
 
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Unidades',
-                        data: data,
-                        backgroundColor: [
-                            '#D4F3EC', // Cor para Ativas
-                            '#E9ECEF', // Cor para Inativas
-                            '#FFF3CD', // Cor para Suspensas
-                            '#d1ecf1'  // Cor para Em Teste
-                        ],
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    }]
+            const COLORS = {
+                light: {
+                    bg: ['#D4F3EC', '#E9ECEF', '#FFF3CD', '#d1ecf1'],
+                    border: '#ffffff',
+                    legend: '#1E4F46'
                 },
-        options: {
-            responsive: true,
-            cutout: '70%',
-            plugins: {
-                legend: {
-                    display: true, 
-                    position: 'bottom', 
-                    align: 'center',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: 8, 
-                        padding: 20
-                    }
-                },
-                tooltip: {
-                    padding: 10,
-                    bodyFont: {
-                        size: 14
-                    }
+                dark: {
+                    bg: ['#3A8F80', '#4a5a65', '#b7791f', '#2b78c2'],
+                    border: '#162421',
+                    legend: '#a9d2c7'
                 }
+            };
+
+            function getTheme() {
+                return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
             }
-        }
+
+            function buildConfig(theme) {
+                const c = COLORS[theme];
+                return {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Unidades',
+                            data: data,
+                            backgroundColor: c.bg,
+                            borderColor: c.border,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                align: 'center',
+                                labels: {
+                                    usePointStyle: true,
+                                    boxWidth: 8,
+                                    padding: 20,
+                                    color: c.legend
+                                }
+                            },
+                            tooltip: {
+                                padding: 10,
+                                bodyFont: { size: 14 }
+                            }
+                        }
+                    }
+                };
+            }
+
+            let chart = new Chart(ctx, buildConfig(getTheme()));
+
+            // Atualiza o gráfico quando o tema mudar
+            document.getElementById('themeToggle')?.addEventListener('click', function () {
+                setTimeout(function () {
+                    const theme = getTheme();
+                    const c = COLORS[theme];
+                    chart.data.datasets[0].backgroundColor = c.bg;
+                    chart.data.datasets[0].borderColor = c.border;
+                    chart.options.plugins.legend.labels.color = c.legend;
+                    chart.update();
+                }, 50);
             });
         });
     </script>
