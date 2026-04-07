@@ -40,6 +40,60 @@ A aplicação estará disponível em:
 
 ---
 
+## 🔬 Sprint 3 — Observabilidade e Testes
+
+Funcionalidades adicionadas na Sprint 3:
+
+- **Health Checks** — endpoints `/health`, `/health/ready` e `/health/live` com resposta JSON detalhada
+- **Logging Estruturado (Serilog)** — logs em console e arquivo rotativo diário (`logs/medix-YYYYMMDD.log`)
+- **Tracing e Métricas (OpenTelemetry)** — rastreamento distribuído e métricas de runtime exportados para console
+- **Testes Unitários (xUnit + Moq)** — 27 testes cobrindo models, ViewModels e `UnidadeService`
+- **Testes de Integração (WebApplicationFactory)** — 11 testes cobrindo API REST e health check endpoints
+
+---
+
+## 🩺 Health Checks e Monitoramento
+
+A aplicação expõe três endpoints de health check:
+
+| Endpoint | Verifica | Tags |
+|---|---|---|
+| `GET /health` | Todos os checks | — |
+| `GET /health/ready` | DbContext + SQL Server | `ready` |
+| `GET /health/live` | Processo em execução | `live` |
+
+### Exemplo de resposta JSON
+
+```json
+{
+  "status": "Healthy",
+  "checks": [
+    { "name": "self",              "status": "Healthy", "description": null, "duration": "00:00:00.0001" },
+    { "name": "ApplicationDbContextHealthCheck", "status": "Healthy", "description": null, "duration": "00:00:00.015" },
+    { "name": "sqlserver",         "status": "Healthy", "description": null, "duration": "00:00:00.012" }
+  ]
+}
+```
+
+### Logs estruturados
+
+Os logs do Serilog são gravados em:
+- **Console** — em tempo real durante execução
+- **Arquivo** — `logs/medix-YYYYMMDD.log` com retenção de 7 dias
+
+---
+
+## 🧪 Como Executar os Testes
+
+```bash
+dotnet test                                      # roda todos os testes
+dotnet test Medix.Tests.Unit                     # só testes unitários (27)
+dotnet test Medix.Tests.Integration              # só testes de integração (11)
+dotnet test --collect:"XPlat Code Coverage"     # com coleta de cobertura de código
+```
+
+---
+
 ## ✨ Funcionalidades (Sprint 2)
 
 ### 🔐 Sistema de Autenticação e Papéis (Roles)
@@ -168,6 +222,18 @@ graph TD
 * **Chart.js** (dashboards)
 * **iMask.js** (máscaras de formulário)
 
+### 📡 Observabilidade
+
+* **Serilog** (logging estruturado — Console + File)
+* **OpenTelemetry** (tracing e métricas — AspNetCore, HttpClient, EF Core, Runtime)
+* **ASP.NET Core Health Checks** (endpoints `/health`, `/health/ready`, `/health/live`)
+
+### 🧪 Testes
+
+* **xUnit** (framework de testes)
+* **Moq** (mocking para testes unitários)
+* **Microsoft.AspNetCore.Mvc.Testing** (testes de integração com WebApplicationFactory)
+
 ### ⚙️ Ferramentas
 
 * Visual Studio 2022
@@ -191,14 +257,14 @@ graph TD
 1.  **Clone o repositório**
 
     ```
-    git clone https://github.com/challengeoracle/sprint-1-dotnet.git
+    git clone https://github.com/challengeoracle/sprint-dotnet.git
 
     ```
 
 2.  **Navegue até a pasta do projeto**
 
     ```
-    cd sprint-1-dotnet
+    cd sprint-dotnet
 
     ```
 
