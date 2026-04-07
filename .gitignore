@@ -16,3 +16,11 @@ coverage/
 
 # Pacotes NuGet locais
 *.nupkg
+
+# Claude Code
+.claude/
+
+# Arquivos locais
+msg-filter.txt
+Novo Documento de Texto.txt
+docs/
