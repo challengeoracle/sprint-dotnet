@@ -1,6 +1,13 @@
-/* --- 1. VARI¡VEIS GLOBAIS (CORES E FONTES) --- */
+/* ============================================================
+   MEDIX ‚Äî Design System
+   Tipografia: Figtree (headings/n√∫meros) + Inter (corpo)
+   Paleta: Teal verde-m√©dico (mantida)
+   ============================================================ */
+
+/* --- 1. VARI√ÅVEIS GLOBAIS --- */
 :root {
-    --medix-50: #FAF9F6;
+    /* Paleta Medix (inalterada) */
+    --medix-50:  #FAF9F6;
     --medix-100: #E9F4F1;
     --medix-200: #CFE7E2;
     --medix-300: #A9D2C7;
@@ -11,44 +18,94 @@
     --medix-800: #1E4F46;
     --medix-900: #122F29;
     --medix-error: #E45865;
-    --font-family-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+
+    /* Tipografia */
+    --font-heading: 'Figtree', system-ui, sans-serif;
+    --font-body:    'Inter',   system-ui, sans-serif;
+
+    /* Easing padr√£o */
+    --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Raio de borda */
+    --radius-sm:  8px;
+    --radius-md:  12px;
+    --radius-lg:  16px;
+    --radius-pill: 50px;
+
+    /* Sombras */
+    --shadow-xs: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-sm: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+    --shadow-lg: 0 16px 40px rgba(0,0,0,0.10);
 }
 
-/* --- 2. ESTILOS GERAIS DO CORPO DA P¡GINA --- */
+/* --- 2. RESET DE TIPOGRAFIA GLOBAL --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
-    background-color: var(--medix-50) !important;
-    font-family: var(--font-family-sans-serif);
+    background-color: var(--medix-50);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
     color: var(--medix-800);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
-/* --- 3. CABE«ALHO PRINCIPAL (NAVBAR) --- */
+/* Headings ‚Äî Figtree */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--medix-900);
+}
+
+h1 { font-size: 2rem;   letter-spacing: -0.03em; }
+h2 { font-size: 1.35rem; letter-spacing: -0.02em; }
+h3 { font-size: 1.15rem; letter-spacing: -0.01em; }
+
+p { margin-bottom: 0; }
+
+/* --- 3. NAVBAR --- */
 .main-navbar {
     background-color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     border-bottom: none;
     height: 100px;
 }
 
-    .main-navbar .container-fluid {
-        display: flex;
-        align-items: center;
-        position: relative;
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
+.main-navbar .container-fluid {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
 
-    /* Logo */
-    .main-navbar .navbar-brand {
-        padding-top: 0;
-        padding-bottom: 0;
-        display: flex;
-        align-items: center;
-    }
+.main-navbar .navbar-brand {
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+}
 
-        .main-navbar .navbar-brand img {
-            height: 100px !important;
-            width: auto;
-        }
+.main-navbar .navbar-brand img {
+    height: 100px !important;
+    width: auto;
+}
 
 .navbar-brand-centered {
     position: absolute;
@@ -56,24 +113,24 @@ body {
     transform: translateX(-50%);
 }
 
-/* Menu Hamb˙rguer (Toggler) */
+/* Toggler */
 .main-navbar .navbar-toggler {
     display: block;
     border: none;
+    padding: 0.5rem;
 }
 
-    .main-navbar .navbar-toggler:focus {
-        box-shadow: none;
-    }
+.main-navbar .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(58,143,128,0.25);
+    outline: none;
+}
 
 .main-navbar .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(30, 79, 70, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(30, 79, 70, 0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-/* ¡rea de Login/Usu·rio */
-.main-navbar .navbar-login {
-    margin-left: auto;
-}
+/* √Årea login */
+.main-navbar .navbar-login { margin-left: auto; }
 
 .navbar-login .navbar-nav {
     flex-direction: row;
@@ -82,81 +139,95 @@ body {
 }
 
 .navbar-login .nav-link {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.9rem;
     color: var(--medix-700);
-    font-weight: 600;
+    transition: color 0.2s var(--ease-out);
 }
 
-.navbar-login .nav-item form {
-    display: inline;
-}
+.navbar-login .nav-link:hover { color: var(--medix-600); }
+
+.navbar-login .nav-item form { display: inline; }
 
 .navbar-login .nav-item button.nav-link {
     border: none;
     background: none;
     padding: 0;
+    cursor: pointer;
 }
 
-/* Menu Lateral (Offcanvas) */
+/* --- 4. MENU OFFCANVAS --- */
 .offcanvas-header {
     border-bottom: 1px solid var(--medix-100);
+    padding: 1.25rem 1.5rem;
 }
 
 .offcanvas-body .nav-link {
-    font-size: 1.1rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
     color: var(--medix-800);
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.25rem;
+    transition: background-color 0.15s var(--ease-out), color 0.15s var(--ease-out);
 }
 
-    .offcanvas-body .nav-link:hover {
-        color: var(--medix-600);
-        background-color: var(--medix-100);
-    }
+.offcanvas-body .nav-link:hover {
+    color: var(--medix-700);
+    background-color: var(--medix-100);
+}
 
-/* Estilo "PÌlula" para aÁıes de autenticaÁ„o */
+/* --- 5. P√çLULA DE AUTENTICA√á√ÉO --- */
 .auth-actions-group {
     display: flex;
     background-color: var(--medix-100);
-    border-radius: 50px; /* Borda bem arredondada para formar a pÌlula */
-    padding: 5px;
+    border-radius: var(--radius-pill);
+    padding: 4px;
     border: 1px solid var(--medix-200);
 }
 
-    .auth-actions-group .nav-item {
-        display: block;
-    }
+.auth-actions-group .nav-item { display: block; }
 
-    .auth-actions-group .auth-action-link {
-        padding: 0.5rem 1rem;
-        color: var(--medix-700);
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-decoration: none;
-        border-radius: 50px;
-        transition: all 0.25s ease-in-out;
-    }
+.auth-actions-group .auth-action-link {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--medix-700);
+    text-decoration: none;
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius-pill);
+    transition: all 0.2s var(--ease-out);
+    letter-spacing: 0.01em;
+    display: inline-block;
+}
 
-        /* Efeito de hover para o link secund·rio */
-        .auth-actions-group .auth-action-link:not(.is-primary):hover {
-            background-color: var(--medix-200);
-        }
+.auth-actions-group .auth-action-link:not(.is-primary):hover {
+    background-color: var(--medix-200);
+    color: var(--medix-800);
+}
 
-        /* Estilo de destaque para a aÁ„o prim·ria */
-        .auth-actions-group .auth-action-link.is-primary {
-            background-color: white;
-            color: var(--medix-600);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-        }
+.auth-actions-group .auth-action-link.is-primary {
+    background-color: white;
+    color: var(--medix-600);
+    box-shadow: var(--shadow-xs);
+}
 
-/* --- 4. ESTILOS DE FORMUL¡RIOS (AUTH E CRUD) --- */
+.auth-actions-group .auth-action-link.is-primary:hover {
+    background-color: white;
+    color: var(--medix-700);
+    box-shadow: var(--shadow-sm);
+}
+
+/* --- 6. FORMUL√ÅRIOS (AUTH & CRUD) --- */
 .auth-container {
-    max-width: 450px;
-    padding: 2rem;
+    max-width: 440px;
+    padding: 2.5rem;
     margin: 4vh auto;
     background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
 }
 
 .auth-header {
@@ -167,56 +238,65 @@ body {
 .auth-logo {
     width: 140px;
     height: auto;
-    margin-bottom: 1rem;
-}
-
-.auth-title {
-    color: var(--medix-800);
-    font-weight: 700;
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.auth-subtitle {
-    color: var(--medix-700);
-    font-size: 1rem;
-}
-
-.form-group {
     margin-bottom: 1.25rem;
 }
 
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--medix-800);
-    }
+.auth-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.875rem;
+    letter-spacing: -0.03em;
+    color: var(--medix-900);
+    margin-bottom: 0.4rem;
+}
+
+.auth-subtitle {
+    font-family: var(--font-body);
+    font-weight: 400;
+    color: var(--medix-600);
+    font-size: 0.95rem;
+}
+
+.form-group { margin-bottom: 1.25rem; }
+
+.form-group label {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.45rem;
+    color: var(--medix-800);
+    letter-spacing: 0.005em;
+}
 
 .form-control {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
     background-color: white;
-    border: 1px solid var(--medix-300);
-    border-radius: 12px;
-    padding: 0.9rem 1rem;
+    border: 1.5px solid var(--medix-200);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
     height: auto;
     color: var(--medix-900);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
     width: 100%;
 }
 
-    .form-control::placeholder {
-        color: var(--medix-400);
-    }
+.form-control::placeholder {
+    color: var(--medix-400);
+    font-weight: 400;
+}
 
-    .form-control:focus {
-        border-color: var(--medix-600);
-        box-shadow: 0 0 0 4px rgba(58, 143, 128, 0.2);
-        background-color: white;
-    }
+.form-control:focus {
+    border-color: var(--medix-500);
+    box-shadow: 0 0 0 3px rgba(58, 143, 128, 0.18);
+    background-color: white;
+    outline: none;
+}
 
 .form-actions {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.75rem;
 }
 
@@ -225,85 +305,117 @@ body {
     margin-top: 2rem;
 }
 
-    .auth-footer p {
-        color: var(--medix-700);
-    }
+.auth-footer p {
+    font-family: var(--font-body);
+    color: var(--medix-600);
+    font-size: 0.9rem;
+}
 
-    .auth-footer .auth-link {
-        color: var(--medix-600);
-        text-decoration: none;
-        font-weight: 600;
-    }
+.auth-footer .auth-link {
+    color: var(--medix-600);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.15s var(--ease-out);
+}
 
-        .auth-footer .auth-link:hover {
-            text-decoration: underline;
-        }
+.auth-footer .auth-link:hover {
+    color: var(--medix-800);
+    text-decoration: underline;
+}
 
 .text-danger {
     color: var(--medix-error) !important;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    margin-top: 0.3rem;
 }
 
-/* --- 5. ESTILOS DE BOT’ES --- */
+/* --- 7. BOT√ïES --- */
 .btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    border-radius: 12px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+    padding: 0.65rem 1.35rem;
+    border-radius: var(--radius-md);
     text-decoration: none;
-    transition: background-color 0.2s, border-color 0.2s;
-    border: 1px solid transparent;
+    border: 1.5px solid transparent;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.4rem;
+    transition: background-color 0.18s var(--ease-out),
+                border-color    0.18s var(--ease-out),
+                box-shadow      0.18s var(--ease-out),
+                transform       0.12s var(--ease-out);
+    white-space: nowrap;
 }
+
+.btn:active { transform: scale(0.975); }
 
 button.btn-primary, a.btn-primary {
     background-color: var(--medix-600);
     border-color: var(--medix-600);
     color: white !important;
+    box-shadow: 0 1px 3px rgba(44,111,100,0.25), 0 1px 2px rgba(44,111,100,0.15);
 }
 
-    button.btn-primary:hover, a.btn-primary:hover {
-        background-color: var(--medix-700);
-        border-color: var(--medix-700);
-    }
+button.btn-primary:hover, a.btn-primary:hover {
+    background-color: var(--medix-700);
+    border-color: var(--medix-700);
+    box-shadow: 0 4px 12px rgba(44,111,100,0.30);
+}
 
 button.btn-secondary, a.btn-secondary {
-    background-color: var(--medix-200);
-    border-color: var(--medix-300);
-    color: var(--medix-800);
+    background-color: var(--medix-100);
+    border-color: var(--medix-200);
+    color: var(--medix-800) !important;
 }
 
-    button.btn-secondary:hover, a.btn-secondary:hover {
-        background-color: var(--medix-300);
-        border-color: var(--medix-400);
-    }
+button.btn-secondary:hover, a.btn-secondary:hover {
+    background-color: var(--medix-200);
+    border-color: var(--medix-300);
+}
 
 button.btn-danger, a.btn-danger {
     background-color: var(--medix-error);
     border-color: var(--medix-error);
     color: white !important;
+    box-shadow: 0 1px 3px rgba(228,88,101,0.25);
 }
 
-    button.btn-danger:hover, a.btn-danger:hover {
-        background-color: #c13c49;
-        border-color: #c13c49;
-    }
+button.btn-danger:hover, a.btn-danger:hover {
+    background-color: #c13c49;
+    border-color: #c13c49;
+    box-shadow: 0 4px 12px rgba(228,88,101,0.30);
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    border-color: var(--medix-300);
+    color: var(--medix-700) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--medix-100);
+    border-color: var(--medix-300);
+    color: var(--medix-800) !important;
+}
 
 .auth-container .btn-primary {
     width: 100%;
     margin-top: 1rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9375rem;
 }
 
-/* --- 6. ESTILOS DE CARDS E TABELAS (P¡GINA INDEX) --- */
+/* --- 8. CARDS --- */
 .card {
     background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(207,231,226,0.6);
     margin-top: 2rem;
 }
 
@@ -311,307 +423,360 @@ button.btn-danger, a.btn-danger {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
     background-color: transparent;
     border-bottom: 1px solid var(--medix-100);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-    .card-header h1 {
-        font-size: 1.75rem;
-        color: var(--medix-800);
-        margin: 0;
-    }
-
-.card-body {
-    padding: 1.5rem;
+.card-header h1 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--medix-900);
+    margin: 0;
 }
+
+.card-header h2 {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--medix-800);
+    margin: 0;
+}
+
+.card-body { padding: 1.5rem; }
 
 .card-footer {
     padding: 1rem 1.5rem;
     background-color: var(--medix-50);
     border-top: 1px solid var(--medix-100);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
+/* --- 9. TABELAS --- */
 .table {
     border-collapse: collapse;
     width: 100%;
+    font-family: var(--font-body);
 }
 
-    .table thead {
-        border-bottom: 2px solid var(--medix-200);
-    }
+.table thead {
+    border-bottom: 2px solid var(--medix-100);
+}
 
-    .table th {
-        color: var(--medix-700);
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        padding: 1rem;
-        vertical-align: middle;
-    }
-
-    .table td {
-        color: var(--medix-800);
-        padding: 1rem;
-        vertical-align: middle;
-        border-top: 1px solid var(--medix-100);
-    }
-
-    .table tbody tr:hover {
-        background-color: var(--medix-50);
-    }
-
-.badge {
-    padding: 0.35rem 0.75rem;
-    border-radius: 50px;
+.table th {
+    font-family: var(--font-body);
     font-weight: 600;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--medix-500);
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+    white-space: nowrap;
 }
 
-.status-ativa {
-    color: #1E6B5A;
-    background-color: #D4F3EC;
+.table td {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: var(--medix-800);
+    padding: 0.9rem 1rem;
+    vertical-align: middle;
+    border-top: 1px solid var(--medix-100);
 }
 
-.status-inativa {
-    color: #596571;
-    background-color: #E9ECEF;
+.table tbody tr {
+    transition: background-color 0.12s var(--ease-out);
 }
 
-.status-suspensa {
-    color: #856404;
-    background-color: #FFF3CD;
+.table tbody tr:hover {
+    background-color: var(--medix-50);
 }
 
-.status-emteste {
-    color: #0c5460;
-    background-color: #d1ecf1;
+/* Links de ordena√ß√£o no header */
+.table thead th a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.15s var(--ease-out);
 }
 
+.table thead th a:hover { color: var(--medix-600); }
+
+/* --- 10. BADGES DE STATUS --- */
+.badge {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-pill);
+    text-transform: uppercase;
+}
+
+.status-ativa    { color: #1E6B5A; background-color: #D4F3EC; }
+.status-inativa  { color: #596571; background-color: #E9ECEF; }
+.status-suspensa { color: #856404; background-color: #FFF3CD; }
+.status-emteste  { color: #0c5460; background-color: #d1ecf1; }
+
+/* --- 11. ACTION LINKS --- */
 .action-link {
-    color: var(--medix-600);
+    font-family: var(--font-body);
     font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--medix-600);
     text-decoration: none;
     margin-left: 1rem;
-    transition: color 0.2s;
+    transition: color 0.15s var(--ease-out);
+    white-space: nowrap;
 }
 
-    .action-link:hover {
-        color: var(--medix-800);
-        text-decoration: underline;
-    }
+.action-link:first-of-type { margin-left: 0; }
 
-    .action-link.text-danger {
-        color: var(--medix-error) !important;
-    }
+.action-link:hover {
+    color: var(--medix-800);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
 
-        .action-link.text-danger:hover {
-            color: #a53d47 !important;
-        }
+.action-link.text-danger { color: var(--medix-error) !important; }
 
+.action-link.text-danger:hover { color: #a53d47 !important; }
+
+/* --- 12. P√ÅGINA DE DETALHES --- */
 .details-list dt {
-    color: var(--medix-700);
+    font-family: var(--font-body);
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--medix-500);
+    margin-bottom: 0.2rem;
 }
 
 .details-list dd {
+    font-family: var(--font-body);
+    font-size: 1rem;
     color: var(--medix-900);
     margin-left: 0;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--medix-100);
 }
 
-/* --- 7. RODAP… PRINCIPAL --- */
+.details-list dd:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* --- 13. RODAP√â --- */
 footer.footer {
     height: 40px !important;
     min-height: auto !important;
     padding: 0 !important;
+    font-family: var(--font-body);
     font-size: 0.75rem !important;
+    font-weight: 400;
+    color: var(--medix-400);
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    border-top: 1px solid var(--medix-100);
+    margin-top: 3rem;
 }
 
-    footer.footer .container {
-        width: auto;
-        max-width: 100%;
-    }
+footer.footer .container { width: auto; max-width: 100%; }
 
-/* --- 8. ESTILOS DO DASHBOARD (HOME PAGE LOGADA) --- */
-
+/* --- 14. DASHBOARD HEADER --- */
 .dashboard-header {
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     margin-top: 2.5rem;
 }
 
-    .dashboard-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--medix-800);
-    }
+.dashboard-header h1 {
+    font-family: var(--font-heading);
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--medix-900);
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+}
 
+.dashboard-header p {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--medix-500);
+    font-weight: 400;
+}
+
+/* --- 15. STAT CARDS --- */
 .stat-card {
     background-color: white;
     padding: 1.5rem;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--medix-100);
-    transition: all 0.2s ease-in-out;
+    transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
 }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
-    }
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--medix-200);
+}
 
 .stat-card-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--medix-600);
+    font-family: var(--font-heading);
+    font-size: 2.75rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--medix-700);
     line-height: 1;
+    font-variant-numeric: tabular-nums;
 }
 
 .stat-card-label {
-    font-size: 0.9rem;
-    color: var(--medix-700);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--medix-500);
     margin-top: 0.5rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
-/* Cores especÌficas para os n˙meros dos cards */
-.stat-card-number.text-success {
-    color: var(--medix-600) !important;
+/* Cores espec√≠ficas dos KPI numbers */
+.stat-card-number.text-success { color: var(--medix-600) !important; }
+.stat-card-number.text-warning { color: #856404 !important; }
+.stat-card-number.text-muted   { color: #596571 !important; }
+
+/* Variantes de stat card do dashboard da unidade */
+.stat-card-total {
+    border-left: 4px solid var(--medix-500);
 }
 
-.stat-card-number.text-warning {
-    color: #856404 !important;
+.stat-card-colaboradores {
+    border-left: 4px solid #0c5460;
 }
 
-.stat-card-number.text-muted {
-    color: #596571 !important;
+.stat-card-quick-action {
+    background: linear-gradient(135deg, white 0%, var(--medix-50) 100%);
+    border: 1px solid var(--medix-200);
 }
 
-/* Centraliza o link no rodapÈ do card */
-.card-footer.text-center {
-    text-align: center;
+.stat-card-quick-action h3 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--medix-800);
 }
 
-/* --- 9. ESTILOS DA BARRA DE FILTRO (INDEX) --- */
+.stat-card-quick-action p {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--medix-500);
+}
 
+/* --- 16. BARRA DE FILTRO --- */
 .filter-bar {
     background-color: var(--medix-50);
     border-bottom: 1px solid var(--medix-100);
+    border-radius: 0;
 }
 
-    .filter-bar .form-control {
-        background-color: white;
-    }
+.filter-bar .form-control { background-color: white; }
 
-/* Bot„o de "Limpar" com estilo vazado */
-.btn-outline-secondary {
-    border-color: var(--medix-300);
-    color: var(--medix-700);
-}
-
-    .btn-outline-secondary:hover {
-        background-color: var(--medix-200);
-        border-color: var(--medix-300);
-        color: var(--medix-800);
-    }
-
-/* Links de ordenaÁ„o no cabeÁalho da tabela */
-.table thead th a {
-    text-decoration: none;
-    color: inherit;
-    transition: color 0.2s;
-}
-
-    .table thead th a:hover {
-        color: var(--medix-600);
-    }
-
-/* Controles de paginaÁ„o */
+/* --- 17. PAGINA√á√ÉO --- */
 .pagination .page-link {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--medix-600);
+    border-radius: var(--radius-sm) !important;
+    border-color: var(--medix-200);
+    transition: all 0.15s var(--ease-out);
+}
+
+.pagination .page-link:hover {
+    background-color: var(--medix-100);
+    border-color: var(--medix-300);
+    color: var(--medix-800);
 }
 
 .pagination .page-item.disabled .page-link {
-    color: #6c757d;
-    background-color: #e9ecef;
+    color: var(--medix-300);
+    background-color: var(--medix-50);
+    border-color: var(--medix-100);
 }
 
-/* --- 10. ESTILOS AVAN«ADOS DO DASHBOARD --- */
-
-/* Novos Cards de EstatÌstica (KPIs) */
+/* --- 18. DASHBOARD AVAN√áADO (stat-card-pro) --- */
 .stat-card-pro {
-    background-color: #fff;
-    border-radius: 12px;
+    background-color: white;
+    border-radius: var(--radius-lg);
     padding: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1.25rem;
     border: 1px solid var(--medix-100);
-    transition: all 0.2s ease-in-out;
+    transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), border-color 0.2s var(--ease-out);
 }
 
-    .stat-card-pro:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
-        border-color: var(--medix-200);
-    }
+.stat-card-pro:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--medix-200);
+}
 
 .stat-icon-pro {
-    font-size: 2.25rem; /* Tamanho do Ìcone */
-    padding: 0.85rem;
+    font-size: 1.75rem;
+    padding: 0.875rem;
     line-height: 1;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-    /* Cores dos Ìcones (usando suas classes de status) */
-    .stat-icon-pro.icon-pacientes {
-        color: var(--medix-600);
-        background-color: var(--medix-100);
-    }
-
-    .stat-icon-pro.icon-colaboradores {
-        color: #0c5460;
-        background-color: #d1ecf1;
-    }
-
-    .stat-icon-pro.icon-atendimentos {
-        color: #856404;
-        background-color: #FFF3CD;
-    }
-
-    .stat-icon-pro.icon-especialidades {
-        color: #596571;
-        background-color: #E9ECEF;
-    }
+.stat-icon-pro.icon-pacientes     { color: var(--medix-600); background-color: var(--medix-100); }
+.stat-icon-pro.icon-colaboradores { color: #0c5460; background-color: #d1ecf1; }
+.stat-icon-pro.icon-atendimentos  { color: #856404; background-color: #FFF3CD; }
+.stat-icon-pro.icon-especialidades{ color: #596571; background-color: #E9ECEF; }
 
 .stat-info-pro .stat-card-number {
+    font-family: var(--font-heading);
     font-size: 2.25rem;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.04em;
     color: var(--medix-800);
     line-height: 1;
+    font-variant-numeric: tabular-nums;
 }
 
 .stat-info-pro .stat-card-label {
-    font-size: 0.9rem;
-    color: var(--medix-700);
-    margin-top: 0.35rem;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--medix-500);
+    margin-top: 0.3rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
-/* TÌtulo do Card */
+/* T√≠tulo de card com estilo pro */
 .card-title-pro {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--medix-800);
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--medix-900);
     margin: 0;
 }
 
-/* Placeholder do Gr·fico */
+/* Placeholder de gr√°fico */
 .chart-placeholder {
     display: flex;
     flex-direction: column;
@@ -619,81 +784,102 @@ footer.footer {
     justify-content: center;
     min-height: 300px;
     background-color: var(--medix-50);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     border: 2px dashed var(--medix-200);
     color: var(--medix-400);
+    font-family: var(--font-body);
     font-weight: 500;
+    font-size: 0.9rem;
 }
 
-/* Tabela de Atividades Recentes */
-.card .table-responsive {
-    max-height: 400px; /* Evita que a tabela fique gigante */
+/* --- 19. TABELA DENTRO DE CARD (override contextual) --- */
+.card .table-responsive { max-height: 400px; overflow-y: auto; }
+.card .table { margin-bottom: 0 !important; }
+
+.card .table th {
+    background-color: var(--medix-50);
+    border-top: none;
+    border-bottom: 1px solid var(--medix-100);
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
-.card .table {
-    margin-bottom: 0 !important;
+.card .table td {
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
 }
 
-    /* Deixa o cabeÁalho da tabela mais limpo */
-    .card .table th {
-        background-color: var(--medix-50);
-        border-top: none;
-        border-bottom: 1px solid var(--medix-200);
-    }
-
-    .card .table td {
-        padding-top: 1.25rem;
-        padding-bottom: 1.25rem;
-    }
-
-/* Card de AÁıes R·pidas (Sidebar) */
+/* --- 20. A√á√ïES R√ÅPIDAS (sidebar cards) --- */
 .card .d-grid .btn {
+    font-family: var(--font-body);
     text-align: left;
-    padding: 0.85rem 1.25rem;
-    font-size: 1rem;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-    .card .d-grid .btn i {
-        font-size: 1.2rem;
-        min-width: 20px; /* Alinha o texto */
-        text-align: center;
-    }
+.card .d-grid .btn i {
+    font-size: 1.1rem;
+    min-width: 20px;
+    text-align: center;
+}
 
-/* Card de Avisos (Sidebar) */
+/* --- 21. NOTIFICA√á√ïES / AVISOS --- */
 .notification-item {
     display: flex;
     gap: 1rem;
     padding: 1rem 0.25rem;
     border-bottom: 1px solid var(--medix-100);
+    transition: background-color 0.12s var(--ease-out);
 }
 
-    .notification-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
+.notification-item:last-child  { border-bottom: none; padding-bottom: 0; }
+.notification-item:first-child { padding-top: 0; }
 
-    .notification-item:first-child {
-        padding-top: 0;
-    }
-
-.notification-icon {
-    font-size: 1.5rem;
-}
+.notification-icon { font-size: 1.5rem; }
 
 .notification-body .notification-title {
+    font-family: var(--font-body);
     font-weight: 600;
+    font-size: 0.9375rem;
     color: var(--medix-800);
-    margin-bottom: 0.25rem;
-    line-height: 1.2;
+    margin-bottom: 0.2rem;
+    line-height: 1.3;
 }
 
 .notification-body .notification-text {
-    font-size: 0.9rem;
-    color: var(--medix-700);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--medix-500);
     margin-bottom: 0;
-    line-height: 1.4;
+    line-height: 1.5;
+}
+
+/* --- 22. UTILIT√ÅRIOS DE TEXTO --- */
+.text-muted {
+    font-family: var(--font-body);
+    color: var(--medix-500) !important;
+}
+
+/* --- 23. RODAP√â DO CARD CENTRALIZADO --- */
+.card-footer.text-center { text-align: center; }
+
+/* --- 24. RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .dashboard-header h1 { font-size: 1.75rem; }
+    .stat-card-number    { font-size: 2.25rem; }
+    .card-header h1      { font-size: 1.25rem; }
+    .card-header         { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .auth-container      { margin: 2vh 1rem; padding: 1.75rem; }
+    .btn                 { font-size: 0.875rem; }
+    .stat-card-quick-action { flex-direction: column; align-items: flex-start; gap: 1rem; }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header h1 { font-size: 1.5rem; }
+    .table th, .table td { padding: 0.75rem 0.75rem; }
 }
