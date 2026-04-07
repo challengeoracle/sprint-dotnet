@@ -121,6 +121,12 @@ p { margin-bottom: 0; }
     width: auto;
 }
 
+.logo-dark  { display: none; }
+.logo-light { display: block; }
+
+[data-theme="dark"] .logo-dark  { display: block; }
+[data-theme="dark"] .logo-light { display: none; }
+
 .navbar-brand-centered {
     position: absolute;
     left: 50%;
