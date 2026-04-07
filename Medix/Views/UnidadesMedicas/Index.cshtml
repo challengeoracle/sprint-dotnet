@@ -8,10 +8,10 @@
     var currentFilter = ViewData["CurrentFilter"] as string;
     var currentStatus = ViewData["CurrentStatus"] as StatusUnidade?;
 
-    var pageNumber = (int)ViewData["PageNumber"];
-    var totalPages = (int)ViewData["TotalPages"];
-    var hasPreviousPage = (bool)ViewData["HasPreviousPage"];
-    var hasNextPage = (bool)ViewData["HasNextPage"];
+    var pageNumber = (int)(ViewData["PageNumber"] ?? 1);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var hasPreviousPage = (bool)(ViewData["HasPreviousPage"] ?? false);
+    var hasNextPage = (bool)(ViewData["HasNextPage"] ?? false);
 }
 
 <div class="card">

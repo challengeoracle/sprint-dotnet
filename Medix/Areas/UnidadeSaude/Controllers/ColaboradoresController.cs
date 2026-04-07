@@ -41,7 +41,7 @@ namespace Medix.Areas.UnidadeSaude.Controllers
 
         // --- INÍCIO DA ATUALIZAÇÃO ---
         // Método privado para popular a lista de Cargos
-        private void PopularCargosViewData(object cargoSelecionado = null)
+        private void PopularCargosViewData(object? cargoSelecionado = null)
         {
             // Você pode alterar esta lista de cargos conforme necessário
             var cargos = new List<SelectListItem>

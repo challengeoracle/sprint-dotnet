@@ -40,7 +40,7 @@ namespace Medix.Controllers
                 // Se for EquipeMedix, carrega o Dashboard da Equipe (lógica antiga)
                 var viewModel = new DashboardViewModel
                 {
-                    UserName = user.UserName,
+                    UserName = user.UserName ?? string.Empty,
                     TotalUnidades = await _context.UnidadesMedicas.CountAsync(),
                     UnidadesAtivas = await _context.UnidadesMedicas.CountAsync(u => u.Status == StatusUnidade.Ativa),
                     UnidadesInativas = await _context.UnidadesMedicas.CountAsync(u => u.Status == StatusUnidade.Inativa),

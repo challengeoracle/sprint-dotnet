@@ -10,7 +10,7 @@ namespace Medix.Models
         [Required]
         [StringLength(100)]
         [Display(Name = "Nome Completo")]
-        public string NomeCompleto { get; set; }
+        public string NomeCompleto { get; set; } = string.Empty;
 
         [StringLength(14)] // Formato 000.000.000-00
         public string? CPF { get; set; }
@@ -35,6 +35,6 @@ namespace Medix.Models
         public int UnidadeMedicaId { get; set; }
 
         [ForeignKey("UnidadeMedicaId")]
-        public virtual UnidadeMedica UnidadeMedica { get; set; }
+        public virtual UnidadeMedica UnidadeMedica { get; set; } = null!;
     }
 }

@@ -68,11 +68,11 @@ namespace Medix.Areas.UnidadeSaude.Controllers
                                                             .ToListAsync();
 
             // 3. Simulação dos dados do gráfico:
-            int totalPacientes = (int)ViewData["TotalPacientes"];
+            int totalPacientes = (int)(ViewData["TotalPacientes"] ?? 0);
             if (totalPacientes == 0) totalPacientes = 1;
 
             ViewData["PacientesCompletos"] = (int)Math.Round(totalPacientes * 0.7);
-            ViewData["PacientesIncompletos"] = totalPacientes - (int)ViewData["PacientesCompletos"];
+            ViewData["PacientesIncompletos"] = totalPacientes - (int)(ViewData["PacientesCompletos"] ?? 0);
 
             return View();
         }

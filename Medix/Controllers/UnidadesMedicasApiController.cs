@@ -108,19 +108,19 @@ namespace Medix.Controllers
         {
             // Link pro próprio recurso ("self")
             dto.Links.Add(new LinkDto(
-                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }),
+                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }) ?? string.Empty,
                 "self",
                 "GET"));
 
             // Link pra editar ("update") - Aponta pra mesma rota GET por enquanto, método PUT
             dto.Links.Add(new LinkDto(
-                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }),
+                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }) ?? string.Empty,
                 "update",
                 "PUT"));
 
             // Link pra excluir ("delete") - Aponta pra mesma rota GET por enquanto, método DELETE
             dto.Links.Add(new LinkDto(
-                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }),
+                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }) ?? string.Empty,
                 "delete",
                 "DELETE"));
         }
@@ -129,7 +129,7 @@ namespace Medix.Controllers
         {
             // Link pra página atual ("self")
             result.Links.Add(new LinkDto(
-                _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber, pageSize = result.PageSize }),
+                _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber, pageSize = result.PageSize }) ?? string.Empty,
                 "self",
                 "GET"));
 
@@ -137,7 +137,7 @@ namespace Medix.Controllers
             if (result.PageNumber > 1)
             {
                 result.Links.Add(new LinkDto(
-                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = 1, pageSize = result.PageSize }),
+                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = 1, pageSize = result.PageSize }) ?? string.Empty,
                    "first",
                    "GET"));
             }
@@ -146,7 +146,7 @@ namespace Medix.Controllers
             if (result.PageNumber > 1)
             {
                 result.Links.Add(new LinkDto(
-                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber - 1, pageSize = result.PageSize }),
+                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber - 1, pageSize = result.PageSize }) ?? string.Empty,
                    "previous",
                    "GET"));
             }
@@ -155,7 +155,7 @@ namespace Medix.Controllers
             if (result.PageNumber < result.TotalPages)
             {
                 result.Links.Add(new LinkDto(
-                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber + 1, pageSize = result.PageSize }),
+                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber + 1, pageSize = result.PageSize }) ?? string.Empty,
                    "next",
                    "GET"));
             }
@@ -164,7 +164,7 @@ namespace Medix.Controllers
             if (result.PageNumber < result.TotalPages)
             {
                 result.Links.Add(new LinkDto(
-                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.TotalPages, pageSize = result.PageSize }),
+                   _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.TotalPages, pageSize = result.PageSize }) ?? string.Empty,
                    "last",
                    "GET"));
             }
@@ -174,7 +174,7 @@ namespace Medix.Controllers
     // Classe auxiliar para formatar a resposta paginada com links HATEOAS
     public class PagedResultWithLinks<T> where T : class
     {
-        public List<T> Items { get; set; }
+        public List<T> Items { get; set; } = new List<T>();
         public int TotalCount { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
