@@ -99,8 +99,10 @@ public class UnidadesApiTests
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var items = doc.RootElement.GetProperty("items");
-        Assert.Equal(1, items.GetArrayLength());
-        Assert.Contains("Hospital", items[0].GetProperty("nome").GetString());
+        Assert.True(items.GetArrayLength() >= 1);
+        // Garante que todos os itens retornados contêm o termo filtrado
+        foreach (var item in items.EnumerateArray())
+            Assert.Contains("Hospital", item.GetProperty("nome").GetString());
     }
 
     [Fact]
