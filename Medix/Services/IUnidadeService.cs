@@ -26,5 +26,15 @@ namespace Medix.Services
         /// Busca por id. Retorna null se não encontrado.
         /// </summary>
         Task<UnidadeMedica?> BuscarPorIdAsync(int id);
+
+        /// <summary>
+        /// Atualiza os dados de uma unidade. Retorna null se não encontrada.
+        /// </summary>
+        Task<UnidadeMedica?> AtualizarAsync(int id, string nome, string cnpj, string? endereco, string? telefone, string emailAdmin, StatusUnidade status);
+
+        /// <summary>
+        /// Remove uma unidade. Retorna false se não encontrada.
+        /// </summary>
+        Task<bool> ExcluirAsync(int id);
     }
 }

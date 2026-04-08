@@ -104,6 +104,43 @@ namespace Medix.Controllers
             return Ok(dto);
         }
 
+        // PUT: api/unidades/5
+        [HttpPut("{id}", Name = "UpdateUnidade")]
+        public async Task<ActionResult<UnidadeMedicaDto>> PutUnidadeMedica(int id, [FromBody] UnidadeMedicaUpdateDto dto)
+        {
+            var unidade = await _unidadeService.AtualizarAsync(id, dto.Nome, dto.CNPJ, dto.Endereco, dto.Telefone, dto.EmailAdmin, dto.Status);
+
+            if (unidade == null)
+                return NotFound();
+
+            var result = new UnidadeMedicaDto
+            {
+                Id = unidade.Id,
+                Nome = unidade.Nome,
+                CNPJ = unidade.CNPJ,
+                Endereco = unidade.Endereco,
+                Telefone = unidade.Telefone,
+                EmailAdmin = unidade.EmailAdmin,
+                Status = unidade.Status,
+                DataCadastro = unidade.DataCadastro
+            };
+            GenerateItemLinks(result);
+
+            return Ok(result);
+        }
+
+        // DELETE: api/unidades/5
+        [HttpDelete("{id}", Name = "DeleteUnidade")]
+        public async Task<IActionResult> DeleteUnidadeMedica(int id)
+        {
+            var excluido = await _unidadeService.ExcluirAsync(id);
+
+            if (!excluido)
+                return NotFound();
+
+            return NoContent();
+        }
+
         // --- Métodos Auxiliares para Gerar Links HATEOAS ---
 
         private void GenerateItemLinks(UnidadeMedicaDto dto)
@@ -114,15 +151,15 @@ namespace Medix.Controllers
                 "self",
                 "GET"));
 
-            // Link pra editar ("update") - Aponta pra mesma rota GET por enquanto, método PUT
+            // Link pra editar ("update")
             dto.Links.Add(new LinkDto(
-                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }) ?? string.Empty,
+                _linkGenerator.GetUriByName(HttpContext, "UpdateUnidade", new { id = dto.Id }) ?? string.Empty,
                 "update",
                 "PUT"));
 
-            // Link pra excluir ("delete") - Aponta pra mesma rota GET por enquanto, método DELETE
+            // Link pra excluir ("delete")
             dto.Links.Add(new LinkDto(
-                _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }) ?? string.Empty,
+                _linkGenerator.GetUriByName(HttpContext, "DeleteUnidade", new { id = dto.Id }) ?? string.Empty,
                 "delete",
                 "DELETE"));
         }

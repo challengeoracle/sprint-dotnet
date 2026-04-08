@@ -54,5 +54,31 @@ namespace Medix.Services
         {
             return await _context.UnidadesMedicas.FindAsync(id);
         }
+
+        public async Task<UnidadeMedica?> AtualizarAsync(int id, string nome, string cnpj, string? endereco, string? telefone, string emailAdmin, StatusUnidade status)
+        {
+            var unidade = await _context.UnidadesMedicas.FindAsync(id);
+            if (unidade == null) return null;
+
+            unidade.Nome = nome;
+            unidade.CNPJ = cnpj;
+            unidade.Endereco = endereco;
+            unidade.Telefone = telefone;
+            unidade.EmailAdmin = emailAdmin;
+            unidade.Status = status;
+
+            await _context.SaveChangesAsync();
+            return unidade;
+        }
+
+        public async Task<bool> ExcluirAsync(int id)
+        {
+            var unidade = await _context.UnidadesMedicas.FindAsync(id);
+            if (unidade == null) return false;
+
+            _context.UnidadesMedicas.Remove(unidade);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
