@@ -42,7 +42,8 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddRuntimeInstrumentation()
-        .AddConsoleExporter());
+        .AddConsoleExporter()
+        .AddPrometheusExporter());
 
 // --- EF Core + Identity ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -123,6 +124,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
+app.MapPrometheusScrapingEndpoint("/metrics");
 
 // --- 1.1 Health Check Endpoints ---
 var jsonOptions = new JsonWriterOptions { Indented = true };
