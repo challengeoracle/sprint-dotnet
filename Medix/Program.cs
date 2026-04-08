@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Models;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
@@ -65,12 +66,31 @@ builder.Services.AddScoped<IUnidadeService, UnidadeService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+// --- Swagger/OpenAPI ---
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Medix API",
+        Version = "v1",
+        Description = "API REST do sistema Medix com suporte a HATEOAS e paginação."
+    });
+});
+
 var app = builder.Build();
 
 // --- 1.2 Serilog Request Logging ---
 app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Medix API v1");
+    c.RoutePrefix = "swagger";
+});
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
