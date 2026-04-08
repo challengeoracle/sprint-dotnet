@@ -55,6 +55,24 @@ namespace Medix.Services
             return await _context.UnidadesMedicas.FindAsync(id);
         }
 
+        public async Task<UnidadeMedica> CriarAsync(string nome, string cnpj, string? endereco, string? telefone, string emailAdmin, StatusUnidade status)
+        {
+            var unidade = new UnidadeMedica
+            {
+                Nome = nome,
+                CNPJ = cnpj,
+                Endereco = endereco,
+                Telefone = telefone,
+                EmailAdmin = emailAdmin,
+                Status = status,
+                DataCadastro = DateTime.UtcNow
+            };
+
+            _context.UnidadesMedicas.Add(unidade);
+            await _context.SaveChangesAsync();
+            return unidade;
+        }
+
         public async Task<UnidadeMedica?> AtualizarAsync(int id, string nome, string cnpj, string? endereco, string? telefone, string emailAdmin, StatusUnidade status)
         {
             var unidade = await _context.UnidadesMedicas.FindAsync(id);

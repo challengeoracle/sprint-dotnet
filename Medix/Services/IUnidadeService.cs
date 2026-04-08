@@ -28,6 +28,11 @@ namespace Medix.Services
         Task<UnidadeMedica?> BuscarPorIdAsync(int id);
 
         /// <summary>
+        /// Cria uma nova unidade médica.
+        /// </summary>
+        Task<UnidadeMedica> CriarAsync(string nome, string cnpj, string? endereco, string? telefone, string emailAdmin, StatusUnidade status);
+
+        /// <summary>
         /// Atualiza os dados de uma unidade. Retorna null se não encontrada.
         /// </summary>
         Task<UnidadeMedica?> AtualizarAsync(int id, string nome, string cnpj, string? endereco, string? telefone, string emailAdmin, StatusUnidade status);

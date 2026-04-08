@@ -104,6 +104,28 @@ namespace Medix.Controllers
             return Ok(dto);
         }
 
+        // POST: api/unidades
+        [HttpPost(Name = "CreateUnidade")]
+        public async Task<ActionResult<UnidadeMedicaDto>> PostUnidadeMedica([FromBody] UnidadeMedicaCreateDto dto)
+        {
+            var unidade = await _unidadeService.CriarAsync(dto.Nome, dto.CNPJ, dto.Endereco, dto.Telefone, dto.EmailAdmin, dto.Status);
+
+            var result = new UnidadeMedicaDto
+            {
+                Id = unidade.Id,
+                Nome = unidade.Nome,
+                CNPJ = unidade.CNPJ,
+                Endereco = unidade.Endereco,
+                Telefone = unidade.Telefone,
+                EmailAdmin = unidade.EmailAdmin,
+                Status = unidade.Status,
+                DataCadastro = unidade.DataCadastro
+            };
+            GenerateItemLinks(result);
+
+            return CreatedAtRoute("GetUnidadeById", new { id = result.Id }, result);
+        }
+
         // PUT: api/unidades/5
         [HttpPut("{id}", Name = "UpdateUnidade")]
         public async Task<ActionResult<UnidadeMedicaDto>> PutUnidadeMedica(int id, [FromBody] UnidadeMedicaUpdateDto dto)
