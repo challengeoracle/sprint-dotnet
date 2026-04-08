@@ -2,6 +2,7 @@ using Medix.Data;
 using Medix.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
@@ -11,6 +12,7 @@ using OpenTelemetry.Metrics;
 using Serilog;
 using System.Text;
 using System.Text.Json;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +68,22 @@ builder.Services.AddScoped<IUnidadeService, UnidadeService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+// --- Rate Limiting ---
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("api", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+    options.RejectionStatusCode = 429;
+});
+
 // --- Swagger/OpenAPI ---
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -104,6 +122,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 // --- 1.1 Health Check Endpoints ---
 var jsonOptions = new JsonWriterOptions { Indented = true };

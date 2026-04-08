@@ -4,6 +4,7 @@ using Medix.Models.Dtos;
 using Medix.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Routing;
@@ -13,6 +14,7 @@ namespace Medix.Controllers
     [Route("api/unidades")] // Define a rota base da API
     [ApiController]       // Marca como um controller de API
     [Authorize]           // Garante que só usuários logados possam acessar
+    [EnableRateLimiting("api")] // 100 requisições por minuto por IP
     public class UnidadesMedicasApiController : ControllerBase
     {
         private readonly IUnidadeService _unidadeService;
