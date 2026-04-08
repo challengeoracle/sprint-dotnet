@@ -1,5 +1,6 @@
 using Medix.Controllers;
 using Medix.Models;
+using Medix.Models.Dtos;
 using Medix.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -187,5 +188,257 @@ public class UnidadesMedicasApiControllerTests
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         Assert.Equal(200, okResult.StatusCode);
+    }
+
+    // ── PostUnidadeMedica ─────────────────────────────────────────────────
+
+    [Fact]
+    public async Task PostUnidadeMedica_QuandoDadosValidos_DeveRetornar201()
+    {
+        // Arrange
+        var novaUnidade = new UnidadeMedica
+        {
+            Id = 10,
+            Nome = "Hospital Novo",
+            CNPJ = "10.000.000/0001-10",
+            EmailAdmin = "novo@hospital.com",
+            Status = StatusUnidade.Ativa,
+            DataCadastro = DateTime.UtcNow
+        };
+
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.CriarAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<StatusUnidade>()))
+            .ReturnsAsync(novaUnidade);
+
+        var mockLink = CriarLinkGeneratorMock();
+        var controller = CriarController(mockService.Object, mockLink.Object);
+
+        var dto = new UnidadeMedicaCreateDto
+        {
+            Nome = "Hospital Novo",
+            CNPJ = "10.000.000/0001-10",
+            EmailAdmin = "novo@hospital.com",
+            Status = StatusUnidade.Ativa
+        };
+
+        // Act
+        var result = await controller.PostUnidadeMedica(dto);
+
+        // Assert
+        var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
+        Assert.Equal(201, createdResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostUnidadeMedica_QuandoDadosValidos_DeveChamarCriarAsyncUmaVez()
+    {
+        // Arrange
+        var novaUnidade = new UnidadeMedica { Id = 11, Nome = "H", CNPJ = "00", EmailAdmin = "a@b.com", DataCadastro = DateTime.UtcNow };
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.CriarAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<StatusUnidade>()))
+            .ReturnsAsync(novaUnidade);
+
+        var controller = CriarController(mockService.Object, CriarLinkGeneratorMock().Object);
+
+        var dto = new UnidadeMedicaCreateDto { Nome = "H", CNPJ = "00", EmailAdmin = "a@b.com", Status = StatusUnidade.Ativa };
+
+        // Act
+        await controller.PostUnidadeMedica(dto);
+
+        // Assert
+        mockService.Verify(s => s.CriarAsync(
+            dto.Nome, dto.CNPJ, dto.Endereco, dto.Telefone, dto.EmailAdmin, dto.Status),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PostUnidadeMedica_QuandoCriado_DeveRetornarObjetoComIdCorreto()
+    {
+        // Arrange
+        var novaUnidade = new UnidadeMedica
+        {
+            Id = 42,
+            Nome = "Hospital ID 42",
+            CNPJ = "42.000.000/0001-42",
+            EmailAdmin = "id42@hospital.com",
+            Status = StatusUnidade.Ativa,
+            DataCadastro = DateTime.UtcNow
+        };
+
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.CriarAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<StatusUnidade>()))
+            .ReturnsAsync(novaUnidade);
+
+        var controller = CriarController(mockService.Object, CriarLinkGeneratorMock().Object);
+        var dto = new UnidadeMedicaCreateDto { Nome = "Hospital ID 42", CNPJ = "42.000.000/0001-42", EmailAdmin = "id42@hospital.com", Status = StatusUnidade.Ativa };
+
+        // Act
+        var result = await controller.PostUnidadeMedica(dto);
+
+        // Assert
+        var createdResult = Assert.IsType<CreatedAtRouteResult>(result.Result);
+        var returned = Assert.IsType<UnidadeMedicaDto>(createdResult.Value);
+        Assert.Equal(42, returned.Id);
+    }
+
+    // ── PutUnidadeMedica ──────────────────────────────────────────────────
+
+    [Fact]
+    public async Task PutUnidadeMedica_QuandoIdInexistente_DeveRetornar404()
+    {
+        // Arrange
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.AtualizarAsync(
+                9999, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<StatusUnidade>()))
+            .ReturnsAsync((UnidadeMedica?)null);
+
+        var controller = CriarController(mockService.Object);
+        var dto = new UnidadeMedicaUpdateDto { Nome = "X", CNPJ = "0", EmailAdmin = "x@x.com", Status = StatusUnidade.Ativa };
+
+        // Act
+        var result = await controller.PutUnidadeMedica(9999, dto);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task PutUnidadeMedica_QuandoIdExistente_DeveRetornar200()
+    {
+        // Arrange
+        var unidadeAtualizada = new UnidadeMedica
+        {
+            Id = 1,
+            Nome = "Hospital Atualizado",
+            CNPJ = "00.000.000/0001-00",
+            EmailAdmin = "atualizado@hospital.com",
+            Status = StatusUnidade.Inativa,
+            DataCadastro = DateTime.UtcNow
+        };
+
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.AtualizarAsync(
+                1, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<StatusUnidade>()))
+            .ReturnsAsync(unidadeAtualizada);
+
+        var controller = CriarController(mockService.Object, CriarLinkGeneratorMock().Object);
+        var dto = new UnidadeMedicaUpdateDto { Nome = "Hospital Atualizado", CNPJ = "00.000.000/0001-00", EmailAdmin = "atualizado@hospital.com", Status = StatusUnidade.Inativa };
+
+        // Act
+        var result = await controller.PutUnidadeMedica(1, dto);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal(200, okResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task PutUnidadeMedica_QuandoIdExistente_DeveChamarAtualizarAsyncComParametrosCorretos()
+    {
+        // Arrange
+        var unidade = new UnidadeMedica { Id = 5, Nome = "N", CNPJ = "C", EmailAdmin = "e@e.com", DataCadastro = DateTime.UtcNow };
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.AtualizarAsync(
+                It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<StatusUnidade>()))
+            .ReturnsAsync(unidade);
+
+        var controller = CriarController(mockService.Object, CriarLinkGeneratorMock().Object);
+        var dto = new UnidadeMedicaUpdateDto { Nome = "Novo Nome", CNPJ = "99", EmailAdmin = "novo@e.com", Status = StatusUnidade.Suspensa };
+
+        // Act
+        await controller.PutUnidadeMedica(5, dto);
+
+        // Assert
+        mockService.Verify(s => s.AtualizarAsync(5, dto.Nome, dto.CNPJ, dto.Endereco, dto.Telefone, dto.EmailAdmin, dto.Status), Times.Once);
+    }
+
+    // ── DeleteUnidadeMedica ───────────────────────────────────────────────
+
+    [Fact]
+    public async Task DeleteUnidadeMedica_QuandoIdInexistente_DeveRetornar404()
+    {
+        // Arrange
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.ExcluirAsync(9999))
+            .ReturnsAsync(false);
+
+        var controller = CriarController(mockService.Object);
+
+        // Act
+        var result = await controller.DeleteUnidadeMedica(9999);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task DeleteUnidadeMedica_QuandoIdExistente_DeveRetornar204()
+    {
+        // Arrange
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.ExcluirAsync(1))
+            .ReturnsAsync(true);
+
+        var controller = CriarController(mockService.Object);
+
+        // Act
+        var result = await controller.DeleteUnidadeMedica(1);
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
+    }
+
+    [Fact]
+    public async Task DeleteUnidadeMedica_QuandoChamado_DeveChamarExcluirAsyncComIdCorreto()
+    {
+        // Arrange
+        var mockService = new Mock<IUnidadeService>();
+        mockService
+            .Setup(s => s.ExcluirAsync(It.IsAny<int>()))
+            .ReturnsAsync(true);
+
+        var controller = CriarController(mockService.Object);
+
+        // Act
+        await controller.DeleteUnidadeMedica(7);
+
+        // Assert
+        mockService.Verify(s => s.ExcluirAsync(7), Times.Once);
+    }
+
+    // ── Auxiliar ──────────────────────────────────────────────────────────
+
+    private static Mock<LinkGenerator> CriarLinkGeneratorMock()
+    {
+        var mock = new Mock<LinkGenerator>();
+        mock.Setup(l => l.GetUriByAddress(
+                It.IsAny<HttpContext>(),
+                It.IsAny<RouteValuesAddress>(),
+                It.IsAny<RouteValueDictionary>(),
+                It.IsAny<RouteValueDictionary?>(),
+                It.IsAny<string?>(),
+                It.IsAny<HostString?>(),
+                It.IsAny<PathString?>(),
+                It.IsAny<FragmentString>(),
+                It.IsAny<LinkOptions?>()))
+            .Returns("https://test.com/api/unidades/1");
+        return mock;
     }
 }
