@@ -24,3 +24,7 @@ coverage/
 msg-filter.txt
 Novo Documento de Texto.txt
 docs/
+
+# Credenciais locais — nunca commitar
+appsettings.Development.json
+replacements.txt

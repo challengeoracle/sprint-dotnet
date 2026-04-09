@@ -241,6 +241,22 @@ graph TD
 
 ---
 
+## 🔐 Configuração de Credenciais
+
+A connection string do banco Oracle **não está versionada no repositório** por motivos de segurança. Para executar o projeto localmente, configure via User Secrets:
+
+```bash
+cd Medix
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "User Id=SEU_RM;Password=SUA_SENHA;Data Source=oracle.fiap.com.br:1521/ORCL;"
+```
+
+Os User Secrets ficam armazenados fora do projeto, em `%APPDATA%\Microsoft\UserSecrets\` (Windows) ou `~/.microsoft/usersecrets/` (Linux/macOS), e nunca são commitados.
+
+Em produção, use variáveis de ambiente ou um serviço de gerenciamento de segredos (Azure Key Vault, AWS Secrets Manager, etc.).
+
+---
+
 ## 🚀 Como Executar o Projeto (Atualizado)
 
 ### ⚙️ Pré-requisitos
