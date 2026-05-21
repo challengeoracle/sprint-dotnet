@@ -2,6 +2,7 @@ using Medix.Controllers;
 using Medix.Models;
 using Medix.Models.Dtos;
 using Medix.Services;
+using Medix.Services.Audit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -16,7 +17,8 @@ public class UnidadesMedicasApiControllerTests
         LinkGenerator? linkGenerator = null)
     {
         var mockLink = linkGenerator ?? new Mock<LinkGenerator>().Object;
-        var controller = new UnidadesMedicasApiController(service, mockLink);
+        var mockAuditoria = new Mock<IAuditoriaService>();
+        var controller = new UnidadesMedicasApiController(service, mockLink, mockAuditoria.Object);
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext()

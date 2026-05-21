@@ -11,7 +11,8 @@ namespace Medix.Models.Dtos
         [StringLength(14)]
         public string? CPF { get; set; }
 
-        public DateTime? DataNascimento { get; set; }
+        [Required]
+        public DateTime DataNascimento { get; set; }
 
         [StringLength(100)]
         [EmailAddress]

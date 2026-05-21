@@ -1,10 +1,16 @@
 using Medix.Data;
+using Medix.Data.Mongo;
 using Medix.Models;
+using Medix.Models.Audit;
+using Medix.Services.Audit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Moq;
 
 namespace Medix.Tests.Integration.Fixtures;
 
@@ -14,7 +20,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            // Remover todos os descritores relacionados ao ApplicationDbContext
+            // --- EF Core: substituir Oracle por InMemory ---
             var dbDescriptors = services
                 .Where(d =>
                     d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>) ||
@@ -23,14 +29,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             foreach (var d in dbDescriptors)
                 services.Remove(d);
 
-            // Remover configurações internas do EF Core (IDbContextOptionsConfiguration<T>)
             var internalConfigs = services
                 .Where(d => d.ServiceType.FullName?.Contains("DbContextOptionsConfiguration") == true)
                 .ToList();
             foreach (var d in internalConfigs)
                 services.Remove(d);
 
-            // Criar IServiceProvider interno isolado para o InMemory
             var inMemorySp = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
@@ -40,8 +44,67 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     .UseInMemoryDatabase("MedixTestDb")
                     .UseInternalServiceProvider(inMemorySp));
 
-            // Autenticação fake para testes — substituir o esquema padrão do Identity pelo TestScheme
-            // para que [Authorize] aceite o handler de teste sem precisar de login real
+            // --- MongoDB: substituir MongoDbContext e IAuditoriaService por mocks ---
+            var mongoDescriptors = services
+                .Where(d =>
+                    d.ServiceType == typeof(MongoDbContext) ||
+                    d.ServiceType == typeof(IOptions<MongoDbSettings>) ||
+                    d.ServiceType == typeof(IAuditoriaService))
+                .ToList();
+            foreach (var d in mongoDescriptors)
+                services.Remove(d);
+
+            // Mock do MongoDbContext — necessário para o MongoDbHealthCheck resolver a dependência
+            // A cadeia Database.Client.ListDatabaseNamesAsync precisa estar totalmente configurada
+            // para que o health check não lance NullReferenceException em testes.
+            var cursorMock = new Mock<IAsyncCursor<string>>();
+            cursorMock.Setup(c => c.MoveNextAsync(It.IsAny<CancellationToken>()))
+                      .ReturnsAsync(false);
+            cursorMock.Setup(c => c.Current).Returns(Enumerable.Empty<string>());
+
+            var mongoClientMock = new Mock<IMongoClient>();
+            mongoClientMock
+                .Setup(c => c.ListDatabaseNamesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(cursorMock.Object);
+
+            var mongoDatabaseMock = new Mock<IMongoDatabase>();
+            mongoDatabaseMock.Setup(d => d.Client).Returns(mongoClientMock.Object);
+
+            var mongoCollectionMock = new Mock<IMongoCollection<LogAuditoria>>();
+            mongoCollectionMock.Setup(col => col.Database).Returns(mongoDatabaseMock.Object);
+
+            var mongoContextMock = new Mock<MongoDbContext>(
+                Options.Create(new MongoDbSettings
+                {
+                    ConnectionString = "mongodb://localhost:27017",
+                    DatabaseName = "TestDb",
+                    LogsCollectionName = "LogsAuditoria"
+                }));
+            mongoContextMock.Setup(m => m.LogsAuditoria).Returns(mongoCollectionMock.Object);
+            services.AddSingleton(_ => mongoContextMock.Object);
+
+            // Mock do IAuditoriaService — não testa Mongo nos testes de integração da API
+            var auditoriaServiceMock = new Mock<IAuditoriaService>();
+            auditoriaServiceMock
+                .Setup(s => s.RegistrarAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Dictionary<string, object?>>()))
+                .Returns(Task.CompletedTask);
+
+            auditoriaServiceMock
+                .Setup(s => s.ObterRecentesAsync(It.IsAny<int>()))
+                .ReturnsAsync(new List<LogAuditoria>());
+
+            auditoriaServiceMock
+                .Setup(s => s.ObterPorEntidadeAsync(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(new List<LogAuditoria>());
+
+            services.AddScoped(_ => auditoriaServiceMock.Object);
+
+            // --- Autenticação fake ---
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "TestScheme";
@@ -50,7 +113,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             })
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", _ => { });
 
-            // Seed de dados de teste
+            // --- Seed de dados de teste ---
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

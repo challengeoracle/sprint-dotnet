@@ -1,5 +1,6 @@
 using Medix.Data;
 using Medix.Models;
+using Medix.Repositories;
 using Medix.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +32,7 @@ public class UnidadeServiceTests
         // Arrange
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_BuscarPorFiltro_QuandoFiltroCorresponde_DeveRetornarApenasUnidadesFiltradas));
         SeedUnidades(ctx);
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarAsync(nome: "Hospital", status: null, sortBy: "Nome", sortDirection: "ASC", page: 1, pageSize: 10);
@@ -47,7 +48,7 @@ public class UnidadeServiceTests
         // Arrange
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_BuscarPorFiltro_QuandoFiltroNaoCorresponde_DeveRetornarListaVazia));
         SeedUnidades(ctx);
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarAsync(nome: "Inexistente", status: null, sortBy: "Nome", sortDirection: "ASC", page: 1, pageSize: 10);
@@ -63,7 +64,7 @@ public class UnidadeServiceTests
         // Arrange
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_Buscar_QuandoOrdenacaoDescendente_DeveRetornarOrdemCorreta));
         SeedUnidades(ctx);
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarAsync(nome: null, status: null, sortBy: "Nome", sortDirection: "DESC", page: 1, pageSize: 10);
@@ -80,7 +81,7 @@ public class UnidadeServiceTests
         // Arrange
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_Buscar_QuandoPaginacao_DeveRetornarApenasItemsDaPagina));
         SeedUnidades(ctx);
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarAsync(nome: null, status: null, sortBy: "Nome", sortDirection: "ASC", page: 1, pageSize: 2);
@@ -96,7 +97,7 @@ public class UnidadeServiceTests
         // Arrange
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_Buscar_QuandoPaginaSegunda_DeveRetornarItemRestante));
         SeedUnidades(ctx);
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarAsync(nome: null, status: null, sortBy: "Nome", sortDirection: "ASC", page: 2, pageSize: 2);
@@ -112,7 +113,7 @@ public class UnidadeServiceTests
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_BuscarPorId_QuandoIdExistente_DeveRetornarUnidade));
         SeedUnidades(ctx);
         var id = ctx.UnidadesMedicas.First().Id;
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarPorIdAsync(id);
@@ -128,7 +129,7 @@ public class UnidadeServiceTests
         // Arrange
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_BuscarPorId_QuandoIdInexistente_DeveRetornarNull));
         SeedUnidades(ctx);
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarPorIdAsync(9999);
@@ -143,7 +144,7 @@ public class UnidadeServiceTests
         // Arrange
         using var ctx = CriarContextoInMemory(nameof(UnidadeService_BuscarPorStatus_QuandoStatusInativa_DeveRetornarApenasInativas));
         SeedUnidades(ctx);
-        var service = new UnidadeService(ctx);
+        var service = new UnidadeService(new UnidadeMedicaRepository(ctx));
 
         // Act
         var resultado = await service.BuscarAsync(nome: null, status: StatusUnidade.Inativa, sortBy: "Nome", sortDirection: "ASC", page: 1, pageSize: 10);

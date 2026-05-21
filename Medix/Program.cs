@@ -1,5 +1,10 @@
 using Medix.Data;
+using Medix.Data.Mongo;
+using Medix.Repositories;
 using Medix.Services;
+using Medix.Services.Audit;
+using Medix.Services.Colaborador;
+using Medix.Services.Paciente;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
@@ -28,7 +33,9 @@ builder.Host.UseSerilog((ctx, cfg) =>
 // --- 1.1 Health Checks ---
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" })
-    .AddDbContextCheck<ApplicationDbContext>(tags: new[] { "ready" });
+    .AddDbContextCheck<ApplicationDbContext>(tags: new[] { "ready" })
+    .AddCheck<Medix.Infrastructure.HealthChecks.MongoDbHealthCheck>(
+        "mongodb", tags: new[] { "ready" });
 
 // --- 1.3 OpenTelemetry ---
 builder.Services.AddOpenTelemetry()
@@ -65,6 +72,19 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 // --- 2.1 Services ---
 builder.Services.AddScoped<IUnidadeService, UnidadeService>();
+builder.Services.AddScoped<IPacienteService, PacienteService>();
+builder.Services.AddScoped<IColaboradorService, ColaboradorService>();
+
+// --- Repositórios ---
+builder.Services.AddScoped<IUnidadeMedicaRepository, UnidadeMedicaRepository>();
+builder.Services.AddScoped<IPacienteRepository, PacienteRepository>();
+builder.Services.AddScoped<IColaboradorRepository, ColaboradorRepository>();
+
+// --- MongoDB + Auditoria ---
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDb"));
+builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -110,9 +130,38 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger";
 });
 
+// --- Tratamento global de excecoes ---
+// Rotas de API recebem JSON; rotas MVC recebem pagina de erro.
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        if (feature?.Error is not null)
+        {
+            Log.Error(feature.Error, "Excecao nao tratada na requisicao {Method} {Path}",
+                context.Request.Method, context.Request.Path);
+        }
+
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new
+            {
+                status = 500,
+                message = "Ocorreu um erro interno. Tente novamente mais tarde."
+            });
+        }
+        else
+        {
+            context.Response.Redirect("/Home/Error");
+        }
+    });
+});
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 

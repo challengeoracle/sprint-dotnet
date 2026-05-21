@@ -1,341 +1,433 @@
-# 🏥 Medix - Plataforma de Gestão de Saúde
+# 🏥 Medix — Plataforma de Gestão de Saúde
 
-### Painel administrativo B2B para o gerenciamento do ecossistema de saúde, separando a gestão interna da Medix da gestão das unidades parceiras.
+> Painel administrativo B2B para o gerenciamento do ecossistema de saúde, separando a gestão interna da Medix da gestão das unidades parceiras.
 
-> Projeto web desenvolvido com **ASP.NET Core MVC** e **ASP.NET Core Web API**, implementando uma arquitetura multitenant baseada em papéis (Roles).  
-> O sistema provê um painel seguro para a **Equipe Medix** administrar unidades de saúde parceiras e um portal separado (Área) para que cada **Unidade de Saúde** possa gerir os seus próprios pacientes e colaboradores.  
->
-> Desenvolvido para o **Challenge FIAP em parceria com a Oracle**.
+Projeto web desenvolvido com **ASP.NET Core MVC** e **ASP.NET Core Web API**, implementando uma arquitetura multitenant baseada em papéis (Roles), persistência relacional com **Oracle** via Entity Framework Core, persistência NoSQL com **MongoDB** para auditoria, e observabilidade completa com Serilog e OpenTelemetry.
+
+Desenvolvido para o **Challenge FIAP em parceria com a Oracle**.
 
 ---
 
 ## 👥 Integrantes do Grupo
 
-- **Arthur Thomas Mariano de Souza (RM 561061)** — Responsável pelas matérias de *IoT & IA Generativa, .NET e Mobile*  
-- **Davi Cavalcanti Jorge (RM 559873)** — Responsável pelas matérias de *Compliance & Q.A, DevOps e Mobile*  
-- **Mateus da Silveira Lima (RM 559728)** — Responsável pelas matérias de *Banco de Dados, Java e Mobile*  
+| Nome | RM | Disciplinas |
+|---|---|---|
+| Arthur Thomas Mariano de Souza | RM 561061 | IoT & IA Generativa, .NET, Mobile |
+| Davi Cavalcanti Jorge | RM 559873 | Compliance & Q.A, DevOps, Mobile |
+| Mateus da Silveira Lima | RM 559728 | Banco de Dados, Java, Mobile |
 
 ---
 
 ## 🎯 Objetivo e Escopo
 
-O objetivo evoluiu para uma plataforma de **dois níveis**:
+O Medix é uma plataforma de **dois níveis de acesso**:
 
-1. **Painel da Equipe Medix (Admin):** Ferramenta de *back-office* para a equipe interna da Medix administrar o ciclo de vida das unidades de saúde parceiras, incluindo a criação das suas contas de acesso.  
-2. **Portal da Unidade de Saúde (Cliente):** Área dedicada e segura onde cada unidade (hospital ou clínica) pode fazer login para gerir os seus próprios dados operacionais, como o registro de pacientes e a gestão de colaboradores.
+1. **Painel da Equipe Medix (Admin):** Back-office para a equipe interna administrar o ciclo de vida das unidades de saúde parceiras.
+2. **Portal da Unidade de Saúde (Cliente):** Área dedicada onde cada hospital ou clínica gerencia seus próprios dados operacionais — pacientes e colaboradores.
 
-Isso garante um **ecossistema seguro**, onde os dados de cada unidade são isolados e a **Equipe Medix mantém o controle administrativo global**.
-
----
-
-### 🔑 (IMPORTANTE) Primeiro Acesso (Equipe Medix)
-
-A aplicação estará disponível em:
-`https://localhost:xxxx`
-
-*(OBRIGATÓRIO)* Use o login pré-criado para a equipe para poder começar:
-
-* **Email:** `admin@medix.com`
-* **Senha:** `Medix123@`
+Isso garante um ecossistema seguro onde **os dados de cada unidade são isolados** e a Equipe Medix mantém o controle administrativo global.
 
 ---
 
-## 🔬 Sprint 3 — Observabilidade e Testes
+## 🏛️ Arquitetura da Solução
 
-Funcionalidades adicionadas na Sprint 3:
+O projeto segue os princípios da **Clean Architecture** com separação em quatro camadas bem definidas. A dependência sempre flui de fora para dentro — Apresentação → Aplicação → Domínio, com Infraestrutura implementando as interfaces do Domínio.
 
-- **Health Checks** — endpoints `/health`, `/health/ready` e `/health/live` com resposta JSON detalhada
-- **Logging Estruturado (Serilog)** — logs em console e arquivo rotativo diário (`logs/medix-YYYYMMDD.log`)
-- **Tracing e Métricas (OpenTelemetry)** — rastreamento distribuído e métricas de runtime exportados para console
-- **Testes Unitários (xUnit + Moq)** — 32 testes cobrindo models, ViewModels, `UnidadeService` e `UnidadesMedicasApiController` (com mock de `IUnidadeService` via Moq)
-- **Testes de Integração (WebApplicationFactory)** — 11 testes cobrindo API REST e health check endpoints
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        APRESENTAÇÃO                             │
+│                                                                 │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌─────────────┐  │
+│  │   MVC (Admin)    │  │  Area UnidadeSaude│  │  Web API    │  │
+│  │ UnidadesMedicas  │  │ Pacientes         │  │ /api/       │  │
+│  │ HomeController   │  │ Colaboradores     │  │ unidades    │  │
+│  │                  │  │ Dashboard         │  │ pacientes   │  │
+│  └────────┬─────────┘  └────────┬──────────┘  │ colaborad.  │  │
+│           │                     │             │ auditoria   │  │
+└───────────┼─────────────────────┼─────────────┼─────────────┘  │
+            │                     │             │
+┌───────────▼─────────────────────▼─────────────▼─────────────┐
+│                        APLICAÇÃO                              │
+│                                                               │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌───────────┐  │
+│  │  IUnidadeService │  │  IPacienteService │  │ IAuditoria│  │
+│  │  UnidadeService  │  │  IColaboradorSvc  │  │ Service   │  │
+│  └──────────────────┘  └──────────────────┘  └───────────┘  │
+│                                                               │
+│  DTOs: UnidadeMedicaDto · PacienteDto · ColaboradorDto        │
+│  ViewModels: DashboardViewModel · CreateUnidadeViewModel      │
+└───────────────────────────────────┬──────────────────────────┘
+                                    │
+┌───────────────────────────────────▼──────────────────────────┐
+│                        INFRAESTRUTURA                         │
+│                                                               │
+│  ┌─────────────────────────┐   ┌──────────────────────────┐  │
+│  │   EF Core (Oracle)      │   │   MongoDB                │  │
+│  │  ApplicationDbContext   │   │  MongoDbContext           │  │
+│  │  Migrations             │   │  LogsAuditoria (coleção) │  │
+│  └─────────────────────────┘   └──────────────────────────┘  │
+│                                                               │
+│  Repositórios:                                                │
+│  IRepository<T> → Repository<T> (genérico)                   │
+│  IUnidadeMedicaRepository → UnidadeMedicaRepository          │
+│  IPacienteRepository     → PacienteRepository                │
+│  IColaboradorRepository  → ColaboradorRepository             │
+│                                                               │
+│  ASP.NET Core Identity · Health Checks · Serilog             │
+│  OpenTelemetry (Tracing + Metrics + Prometheus)              │
+└───────────────────────────────────┬──────────────────────────┘
+                                    │
+┌───────────────────────────────────▼──────────────────────────┐
+│                          DOMÍNIO                              │
+│                                                               │
+│  Entidades: UnidadeMedica · Paciente · Colaborador           │
+│  Enums:     StatusUnidade · TipoColaborador                  │
+│  Audit:     LogAuditoria (documento MongoDB)                 │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Diagrama de dependências simplificado (Mermaid)
+
+```mermaid
+graph TD
+    subgraph Apresentação
+        MVC[MVC Admin]
+        AREA[Area UnidadeSaude]
+        API[Web API REST]
+    end
+
+    subgraph Aplicação
+        SVC[Services + Interfaces]
+        AUDIT[AuditoriaService]
+        DTO[DTOs / ViewModels]
+    end
+
+    subgraph Infraestrutura
+        EF[EF Core + Oracle]
+        MONGO[MongoDB]
+        REPO[Repositories]
+        ID[ASP.NET Identity]
+    end
+
+    subgraph Domínio
+        ENT[Entidades + Enums]
+        LOG[LogAuditoria]
+    end
+
+    MVC --> SVC
+    AREA --> SVC
+    API --> SVC
+    API --> AUDIT
+    SVC --> REPO
+    AUDIT --> MONGO
+    REPO --> EF
+    EF --> ENT
+    MONGO --> LOG
+```
 
 ---
 
-## 🩺 Health Checks e Monitoramento
+## 📡 Endpoints da API REST
 
-A aplicação expõe três endpoints de health check:
+### Base URL: `/api`
 
-| Endpoint | Verifica | Tags |
-|---|---|---|
-| `GET /health` | Todos os checks | — |
-| `GET /health/ready` | DbContext (Oracle) | `ready` |
-| `GET /health/live` | Processo em execução | `live` |
+Todos os endpoints da API exigem autenticação. O papel `EquipeMedix` tem acesso total; o papel `UnidadeSaude` acessa apenas os endpoints das suas próprias unidades.
 
-### Exemplo de resposta JSON
+---
 
+### 🏥 Unidades Médicas — `/api/unidades`
+
+| Método | Rota | Autorização | Descrição |
+|---|---|---|---|
+| `GET` | `/api/unidades` | Autenticado | Lista paginada com filtros e HATEOAS |
+| `GET` | `/api/unidades/{id}` | Autenticado | Busca unidade por ID |
+| `POST` | `/api/unidades` | Autenticado | Cria nova unidade médica |
+| `PUT` | `/api/unidades/{id}` | Autenticado | Atualiza unidade médica |
+| `DELETE` | `/api/unidades/{id}` | Autenticado | Remove unidade médica |
+
+**Query params do GET `/api/unidades`:**
+
+| Parâmetro | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `nome` | string | — | Filtro parcial por nome |
+| `status` | enum | — | `Ativa`, `Inativa`, `Suspensa`, `EmTeste` |
+| `sortBy` | string | `Nome` | Campo de ordenação |
+| `sortDirection` | string | `ASC` | `ASC` ou `DESC` |
+| `page` | int | `1` | Página atual |
+| `pageSize` | int | `10` | Itens por página |
+
+**Exemplo de resposta com HATEOAS:**
 ```json
 {
-  "status": "Healthy",
-  "checks": [
-    { "name": "self",              "status": "Healthy", "description": null, "duration": "00:00:00.0001" },
-    { "name": "ApplicationDbContextHealthCheck", "status": "Healthy", "description": null, "duration": "00:00:00.015" }
+  "items": [
+    {
+      "id": 1,
+      "nome": "Hospital Central",
+      "cnpj": "00.000.000/0001-00",
+      "status": "Ativa",
+      "dataCadastro": "2024-01-01T00:00:00Z",
+      "links": [
+        { "href": "/api/unidades/1", "rel": "self",   "method": "GET" },
+        { "href": "/api/unidades/1", "rel": "update", "method": "PUT" },
+        { "href": "/api/unidades/1", "rel": "delete", "method": "DELETE" }
+      ]
+    }
+  ],
+  "totalCount": 1,
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalPages": 1,
+  "links": [
+    { "href": "/api/unidades?page=1", "rel": "self", "method": "GET" }
   ]
 }
 ```
 
-### Logs estruturados
+---
 
-Os logs do Serilog são gravados em:
-- **Console** — em tempo real durante execução
-- **Arquivo** — `logs/medix-YYYYMMDD.log` com retenção de 7 dias
+### 👤 Pacientes — `/api/unidades/{unidadeId}/pacientes`
+
+| Método | Rota | Autorização | Descrição |
+|---|---|---|---|
+| `GET` | `/api/unidades/{unidadeId}/pacientes` | Autenticado | Lista paginada de pacientes |
+| `GET` | `/api/unidades/{unidadeId}/pacientes/{id}` | Autenticado | Busca paciente por ID |
+| `POST` | `/api/unidades/{unidadeId}/pacientes` | Autenticado | Registra novo paciente |
+| `PUT` | `/api/unidades/{unidadeId}/pacientes/{id}` | Autenticado | Atualiza paciente |
+| `DELETE` | `/api/unidades/{unidadeId}/pacientes/{id}` | Autenticado | Remove paciente |
 
 ---
 
-## 🧪 Como Executar os Testes
+### 👨‍⚕️ Colaboradores — `/api/unidades/{unidadeId}/colaboradores`
 
-```bash
-dotnet test                                      # roda todos os testes
-dotnet test Medix.Tests.Unit                     # só testes unitários (27)
-dotnet test Medix.Tests.Integration              # só testes de integração (11)
-dotnet test --collect:"XPlat Code Coverage"     # com coleta de cobertura de código
+| Método | Rota | Autorização | Descrição |
+|---|---|---|---|
+| `GET` | `/api/unidades/{unidadeId}/colaboradores` | Autenticado | Lista paginada de colaboradores |
+| `GET` | `/api/unidades/{unidadeId}/colaboradores/{id}` | Autenticado | Busca colaborador por ID |
+| `POST` | `/api/unidades/{unidadeId}/colaboradores` | Autenticado | Registra novo colaborador |
+| `PUT` | `/api/unidades/{unidadeId}/colaboradores/{id}` | Autenticado | Atualiza colaborador |
+| `DELETE` | `/api/unidades/{unidadeId}/colaboradores/{id}` | Autenticado | Remove colaborador |
+
+**Query params do GET colaboradores:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `nome` | string | Filtro parcial por nome |
+| `cargo` | enum | `Medico`, `Enfermeiro`, `Tecnico`, `Administrativo` |
+| `page` | int | Página atual |
+| `pageSize` | int | Itens por página |
+
+---
+
+### 📋 Auditoria — `/api/auditoria` (NoSQL — MongoDB)
+
+> Acesso restrito ao papel `EquipeMedix`.
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/auditoria` | Últimos N logs do sistema (padrão 50, máximo 200) |
+| `GET` | `/api/auditoria/{entidade}/{id}` | Histórico de um registro específico |
+
+**Query params:**
+
+| Parâmetro | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `limite` | int | `50` | Quantidade de logs (máx. 200) |
+
+**Entidades válidas:** `UnidadeMedica`, `Paciente`, `Colaborador`
+
+**Exemplo de documento de auditoria:**
+```json
+{
+  "id": "6632a1f2e4b0a1c2d3e4f5a6",
+  "entidade": "UnidadeMedica",
+  "entidadeId": 1,
+  "operacao": "UPDATE",
+  "realizadoPor": "admin@medix.com",
+  "realizadoEm": "2024-05-01T14:30:00Z",
+  "detalhe": {
+    "nome": "Hospital Central Atualizado",
+    "status": "Ativa"
+  }
+}
 ```
 
 ---
 
-## ✨ Funcionalidades (Sprint 2)
+### 🩺 Monitoramento
 
-### 🔐 Sistema de Autenticação e Papéis (Roles)
-
-- [x] **Dois Papéis de Acesso:**
-  - `EquipeMedix`: Acesso total ao dashboard administrativo principal.
-  - `UnidadeSaude`: Acesso restrito ao dashboard e ferramentas da sua própria unidade.
-- [x] **Login Inteligente:** Redireciona automaticamente para o dashboard correto (`/Home` ou `/UnidadeSaude/Dashboard`).
-- [x] **Registro Privado:** Apenas a Equipe Medix pode criar contas de unidades de saúde.
-- [x] **Criação de Conta Admin via Seed:** Usuário `admin@medix.com` é criado automaticamente na inicialização.
-
----
-
-### 📊 Dashboards (Painéis de Controle)
-
-- [x] **Dashboard da Equipe Medix:** Estatísticas globais e gráfico de distribuição.
-- [x] **Dashboard da Unidade de Saúde:** Estatísticas específicas da unidade logada (pacientes, colaboradores, etc.).
+| Endpoint | Descrição |
+|---|---|
+| `GET /health` | Status completo (Oracle + MongoDB) |
+| `GET /health/ready` | Prontidão (Oracle + MongoDB) |
+| `GET /health/live` | Processo em execução |
+| `GET /metrics` | Métricas Prometheus |
+| `GET /swagger` | Documentação interativa OpenAPI |
 
 ---
 
-### 🏥 Gestão (Equipe Medix)
+## 🍃 MongoDB — Configuração
 
-- [x] **CRUD de Unidades Médicas:** Criar, listar, editar e excluir unidades.  
-- [x] **Criação de Login da Unidade:** Campos para definir o e-mail e senha do administrador da unidade.  
-- [x] **Busca e Paginação:** Filtros, ordenação e paginação *server-side*.  
+O Medix usa MongoDB para persistência dos logs de auditoria. Configure via User Secrets:
 
----
+```bash
+cd Medix
 
-### 🩺 Gestão (Unidade de Saúde)
+# MongoDB local
+dotnet user-secrets set "MongoDb:ConnectionString" "mongodb://localhost:27017"
 
-- [x] **CRUD de Pacientes:** Cada unidade só gerencia seus próprios pacientes.  
-- [x] **CRUD de Colaboradores:** Cada unidade só gerencia seus próprios colaboradores.  
-- [x] **Isolamento de Dados:** Nenhuma unidade pode acessar dados de outra.  
+# MongoDB Atlas (nuvem)
+dotnet user-secrets set "MongoDb:ConnectionString" "mongodb+srv://usuario:senha@cluster.mongodb.net/"
+```
 
----
-
-### 🚀 API (RESTful)
-
-- [x] **Endpoint `/api/unidades`:** Retorna dados das unidades de saúde.  
-- [x] **Funcionalidades:** Filtros, ordenação e paginação.  
-- [x] **HATEOAS:** Links hipermídia nas respostas (self, next, previous, update, delete).  
-
----
-
-### 🧭 Interface de Usuário
-
-- [x] **Layouts Separados:**  
-  `_Layout.cshtml` (Equipe Medix) e `_LayoutUnidade.cshtml` (Unidade de Saúde).  
-- [x] **Rotas Personalizadas:** URLs amigáveis (`/unidades/nova`, `/UnidadeSaude/Pacientes/Create`).  
-- [x] **Design Profissional:** Interface moderna com **Bootstrap 5** e **Chart.js**.  
-
----
-
-## 🏛️ Arquitetura
-
-O projeto segue princípios da **Clean Architecture** e utiliza **MVC com Áreas (Areas)** para separar `EquipeMedix` e `UnidadeSaude`.
-
-```mermaid
-graph TD
-    A[Apresentacao MVC] --> B[Aplicacao]
-    AA[Apresentacao Area UnidadeSaude] --> B
-    E[Apresentacao Web API] --> B
-    D[Infraestrutura] --> B
-    B --> C[Dominio]
-````
-
----
-
-### 🧩 Camadas
-
-#### **Domínio (Domain)**
-
-* Entidades: `UnidadeMedica`, `Paciente`, `Colaborador`
-* Enums e Value Objects: `StatusUnidade`, `TipoColaborador`
-
-#### **Aplicação (Application)**
-
-* Casos de uso e lógica de negócio.
-* ViewModels (ex.: `DashboardViewModel`, `CreateUnidadeViewModel`)
-* DTOs (ex.: `UnidadeMedicaDto`, `LinkDto`)
-
-#### **Infraestrutura (Infrastructure)**
-
-* Repositórios com **Entity Framework Core (ApplicationDbContext)**
-* Implementação do **ASP.NET Core Identity** com papéis (Roles)
-
-#### **Apresentação (Presentation)**
-
-* Projeto **ASP.NET Core MVC** (Equipe Medix)
-* Área **UnidadeSaude**
-* Controladores de API (`UnidadesMedicasApiController`)
-
----
-
-## ✔️ Requisitos Funcionais (Sprint 2)
-
-* **[RF-01]** Autenticação de Papéis
-* **[RF-02]** Redirecionamento por Papel
-* **[RF-03]** Criação de Utilizador Vinculado
-* **[RF-04]** CRUD de Pacientes (Restrito)
-* **[RF-05]** CRUD de Colaboradores (Restrito)
-* **[RF-06]** API de Busca
-* **[RF-07]** HATEOAS
-* **[RF-08]** Busca no Front-End
+| Campo | Valor padrão |
+|---|---|
+| Database | `MedixAudit` |
+| Collection | `LogsAuditoria` |
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-### 🧩 Backend
+### Backend
+- **.NET 8** + **ASP.NET Core MVC** + **ASP.NET Core Web API**
+- **Entity Framework Core 8** + **Oracle.EntityFrameworkCore**
+- **MongoDB.Driver 2.29**
+- **ASP.NET Core Identity** com Roles
 
-* **.NET 8**
-* **ASP.NET Core MVC (com Áreas)**
-* **ASP.NET Core Web API**
-* **Entity Framework Core 8**
-* **ASP.NET Core Identity (com Papéis)**
+### Observabilidade
+- **Serilog** — logging estruturado (Console + arquivo rotativo diário)
+- **OpenTelemetry** — tracing (AspNetCore, HttpClient, EF Core) e métricas (Runtime, Prometheus)
+- **ASP.NET Core Health Checks** — Oracle e MongoDB
 
-### 🗄️ Banco de Dados
+### Testes
+- **xUnit** — framework de testes
+- **Moq** — mocking
+- **Microsoft.AspNetCore.Mvc.Testing** — testes de integração com `WebApplicationFactory`
+- **EF Core InMemory** — banco de dados em memória para testes de repositório
 
-* **Oracle Database** (oracle.fiap.com.br — persistência compartilhada)
+### Frontend
+- **Bootstrap 5**, **Chart.js**, **iMask.js**
 
-### 💻 Frontend
-
-* HTML5, CSS3, JavaScript
-* **Bootstrap 5**
-* **Chart.js** (dashboards)
-* **iMask.js** (máscaras de formulário)
-
-### 📡 Observabilidade
-
-* **Serilog** (logging estruturado — Console + File)
-* **OpenTelemetry** (tracing e métricas — AspNetCore, HttpClient, EF Core, Runtime)
-* **ASP.NET Core Health Checks** (endpoints `/health`, `/health/ready`, `/health/live`)
-
-### 🧪 Testes
-
-* **xUnit** (framework de testes)
-* **Moq** (mocking para testes unitários)
-* **Microsoft.AspNetCore.Mvc.Testing** (testes de integração com WebApplicationFactory)
-
-### ⚙️ Ferramentas
-
-* Visual Studio 2022
-* Git & GitHub
-* Postman (testes de API)
+### Ferramentas
+- Visual Studio 2022, Git & GitHub, Postman
 
 ---
 
 ## 🔐 Configuração de Credenciais
 
-A connection string do banco Oracle **não está versionada no repositório** por motivos de segurança. Para executar o projeto localmente, configure via User Secrets:
+A connection string Oracle e a string do MongoDB **não são versionadas**. Configure via User Secrets:
 
 ```bash
 cd Medix
 dotnet user-secrets init
+
+# Oracle (FIAP)
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "User Id=SEU_RM;Password=SUA_SENHA;Data Source=oracle.fiap.com.br:1521/ORCL;"
+
+# MongoDB
+dotnet user-secrets set "MongoDb:ConnectionString" "mongodb://localhost:27017"
 ```
 
-Os User Secrets ficam armazenados fora do projeto, em `%APPDATA%\Microsoft\UserSecrets\` (Windows) ou `~/.microsoft/usersecrets/` (Linux/macOS), e nunca são commitados.
-
-Em produção, use variáveis de ambiente ou um serviço de gerenciamento de segredos (Azure Key Vault, AWS Secrets Manager, etc.).
-
 ---
 
-## 🚀 Como Executar o Projeto (Atualizado)
+## 🚀 Como Executar
 
-### ⚙️ Pré-requisitos
+### Pré-requisitos
+- .NET 8 SDK
+- Visual Studio 2022
+- Acesso ao Oracle FIAP (ou Oracle local)
+- MongoDB (local ou Atlas)
 
-* .NET 8 SDK
-* Visual Studio 2022 (com a carga de trabalho "ASP.NET MVC e desenvolvimento web")
-* SQL Server Express LocalDB
+### Passo a passo
 
----
+```bash
+# 1. Clone o repositório
+git clone https://github.com/challengeoracle/sprint-dotnet.git
+cd sprint-dotnet
 
-### 🧭 Passo a passo
+# 2. Configure as credenciais (ver seção acima)
 
-1.  **Clone o repositório**
+# 3. Restaure as dependências
+dotnet restore
 
-    ```
-    git clone https://github.com/challengeoracle/sprint-dotnet.git
+# 4. Execute a aplicação
+dotnet run --project Medix
+```
 
-    ```
+O `Program.cs` aplica as migrations automaticamente na inicialização, cria os papéis `EquipeMedix` e `UnidadeSaude`, e cria o usuário admin padrão.
 
-2.  **Navegue até a pasta do projeto**
+### 🔑 Primeiro acesso
 
-    ```
-    cd sprint-dotnet
+| Campo | Valor |
+|---|---|
+| Email | `admin@medix.com` |
+| Senha | `Medix123@` |
 
-    ```
-
-3.  **Abra o projeto no Visual Studio**
-
-    -   Clique duas vezes no arquivo `.sln` para abrir a solução.
-
-4.  **Restaure as dependências**
-
-    -   O Visual Studio deve fazer isso automaticamente. Se necessário, execute no terminal:
-
-    ```
-    dotnet restore
-
-    ```
-
-5.  **Configure o Banco de Dados**
-
-    -   No Visual Studio, abra o **Console do Gerenciador de Pacotes** (`View > Other Windows > Package Manager Console`).
-
-    -   Execute o comando abaixo para criar o banco de dados e aplicar as *migrations*:
-
-    ```
-    Update-Database
-
-    ```
-
-6.  **Execute a Aplicação**
-
-    -   No Visual Studio: pressione `F5` ou clique no botão de play.
-
-    -   Ou pelo terminal:
-
-    ```
-    dotnet run
-
-    ```
-
-   * O `Program.cs` irá:
-
-     * Executar as *migrations*
-     * Criar o banco de dados
-     * Criar os papéis `EquipeMedix` e `UnidadeSaude`
-     * Criar o usuário admin padrão
-
-
----
-
-### 🧾 Criar Acesso (Unidade de Saúde)
+### Criar acesso para uma Unidade de Saúde
 
 1. Faça login como admin
-2. Vá em **Unidades Médicas → Adicionar Nova**
-3. Preencha os campos da unidade, incluindo:
-
-   * E-mail de acesso
-   * Senha de acesso
-4. Após salvar, saia e teste o login com os dados da nova unidade.
+2. Acesse **Unidades Médicas → Adicionar Nova**
+3. Preencha os dados da unidade, e-mail e senha de acesso
+4. Saia e faça login com os dados da nova unidade
 
 ---
+
+## 🧪 Testes
+
+```bash
+# Todos os testes
+dotnet test
+
+# Só unitários
+dotnet test Medix.Tests.Unit
+
+# Só integração
+dotnet test Medix.Tests.Integration
+
+# Com cobertura de código
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### Cobertura atual
+
+| Camada | Testes |
+|---|---|
+| Domínio (Models / ViewModels) | ✅ UnidadeMedica, Paciente, Colaborador, CreateUnidadeViewModel, EditUnidadeViewModel |
+| Aplicação (Services) | ✅ UnidadeService, PacienteService, AuditoriaService |
+| Infraestrutura (Repositories) | ✅ UnidadeMedicaRepository, PacienteRepository, ColaboradorRepository |
+| Apresentação (Controllers) | ✅ UnidadesMedicasApiController |
+| Integração (API + Health Checks) | ✅ Unidades, Pacientes, Colaboradores, Health Checks |
+
+---
+
+## ✨ Funcionalidades por Sprint
+
+### Sprint 1 — Fundação MVC
+- CRUD de Unidades Médicas (admin)
+- Autenticação com ASP.NET Core Identity
+- Dois papéis: `EquipeMedix` e `UnidadeSaude`
+- Dashboards separados por papel
+- Login inteligente com redirecionamento por papel
+
+### Sprint 2 — API RESTful
+- API REST completa para Unidades, Pacientes e Colaboradores
+- Paginação, filtros e ordenação server-side
+- HATEOAS com links hipermídia nas respostas
+- Rate Limiting por IP (100 req/min)
+- Documentação Swagger/OpenAPI
+
+### Sprint 3 — Observabilidade e Testes
+- Serilog com enriquecimento (MachineName, ThreadId)
+- OpenTelemetry (Tracing + Métricas + Prometheus)
+- Health Checks em `/health`, `/health/ready`, `/health/live`
+- Testes unitários (xUnit + Moq)
+- Testes de integração (WebApplicationFactory)
+
+### Sprint 4 — Consolidação
+- **MongoDB** integrado para log de auditoria (CREATE, UPDATE, DELETE)
+- **Padrão Repository** com `IRepository<T>` genérico e repositórios concretos
+- **Tratamento global de exceções** (JSON para `/api/*`, redirect para MVC)
+- **Health Check do MongoDB** em `/health/ready`
+- `UnidadeMedicaDto` desacoplado do modelo de domínio (sem herança)
+- Testes de repositório com EF Core InMemory
+- `CustomWebApplicationFactory` com mock do MongoDB para testes de integração

@@ -140,41 +140,47 @@ namespace Medix.Areas.UnidadeSaude.Controllers
             return View(colaborador);
         }
 
-        // POST: Colaboradores/Edit/5
-        [HttpPost]
+        // POST: Colaboradores/Edit/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,NomeCompleto,Email,Cargo,Especialidade,RegistroProfissional")] Colaborador colaborador)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (id != colaborador.Id || unidadeId == null) return NotFound();
 
-            // VINCULA O COLABORADOR À UNIDADE DO USUÁRIO
-            colaborador.UnidadeMedicaId = unidadeId.Value;
             ModelState.Remove("UnidadeMedica");
 
             if (ModelState.IsValid)
             {
+                // Busca o registro rastreado pelo EF — garante permissão e evita conflito de tracking
+                var colaboradorExistente = await _context.Colaboradores
+                    .FirstOrDefaultAsync(c => c.Id == id && c.UnidadeMedicaId == unidadeId.Value);
+
+                if (colaboradorExistente == null) return NotFound();
+
+                // Atualiza apenas os campos editáveis na entidade já rastreada
+                colaboradorExistente.NomeCompleto = colaborador.NomeCompleto;
+                colaboradorExistente.Email = colaborador.Email;
+                colaboradorExistente.Cargo = colaborador.Cargo;
+                colaboradorExistente.Especialidade = colaborador.Especialidade;
+                colaboradorExistente.RegistroProfissional = colaborador.RegistroProfissional;
+                // UnidadeMedicaId permanece intacto
+
                 try
                 {
-                    // VERIFICA NOVAMENTE SE O USUÁRIO TEM PERMISSÃO para editar
-                    var hasPermission = await _context.Colaboradores
-            .AnyAsync(c => c.Id == id && c.UnidadeMedicaId == unidadeId.Value);
-
-                    if (!hasPermission) return NotFound();
-
-                    _context.Update(colaborador);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Colaboradores.Any(e => e.Id == colaborador.Id)) return NotFound();
+                    if (!_context.Colaboradores.Any(e => e.Id == id)) return NotFound();
                     else throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
 
             PopularCargosViewData(colaborador.Cargo);
-            return View(colaborador);
+            return View(colaborador);
         }
 
         // GET: Colaboradores/Delete/5

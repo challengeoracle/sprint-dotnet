@@ -1,10 +1,9 @@
-using Medix.Data;
-using Medix.Models;
 using Medix.Models.Dtos;
+using Medix.Services.Audit;
+using Medix.Services.Paciente;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.EntityFrameworkCore;
 
 namespace Medix.Controllers
 {
@@ -14,12 +13,17 @@ namespace Medix.Controllers
     [EnableRateLimiting("api")]
     public class PacientesApiController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPacienteService _pacienteService;
+        private readonly IAuditoriaService _auditoria;
         private readonly LinkGenerator _linkGenerator;
 
-        public PacientesApiController(ApplicationDbContext context, LinkGenerator linkGenerator)
+        public PacientesApiController(
+            IPacienteService pacienteService,
+            IAuditoriaService auditoria,
+            LinkGenerator linkGenerator)
         {
-            _context = context;
+            _pacienteService = pacienteService;
+            _auditoria = auditoria;
             _linkGenerator = linkGenerator;
         }
 
@@ -31,23 +35,10 @@ namespace Medix.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
-            if (!await UnidadeExisteAsync(unidadeId))
+            if (!await _pacienteService.UnidadeExisteAsync(unidadeId))
                 return NotFound(new { message = "Unidade médica não encontrada." });
 
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
-            if (pageSize > 100) pageSize = 100;
-
-            var query = _context.Pacientes
-                .Where(p => p.UnidadeMedicaId == unidadeId);
-
-            if (!string.IsNullOrWhiteSpace(nome))
-                query = query.Where(p => p.NomeCompleto.Contains(nome));
-
-            query = query.OrderBy(p => p.NomeCompleto);
-
-            var totalCount = await query.CountAsync();
-            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var (items, total) = await _pacienteService.BuscarAsync(unidadeId, nome, page, pageSize);
 
             var itemDtos = items.Select(p =>
             {
@@ -59,10 +50,10 @@ namespace Medix.Controllers
             var result = new PagedResultWithLinks<PacienteDto>
             {
                 Items = itemDtos,
-                TotalCount = totalCount,
+                TotalCount = total,
                 PageNumber = page,
                 PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+                TotalPages = (int)Math.Ceiling(total / (double)pageSize)
             };
 
             result.Links.Add(new LinkDto(
@@ -96,18 +87,14 @@ namespace Medix.Controllers
         [HttpGet("{id}", Name = "GetPacienteById")]
         public async Task<ActionResult<PacienteDto>> GetPaciente(int unidadeId, int id)
         {
-            if (!await UnidadeExisteAsync(unidadeId))
+            if (!await _pacienteService.UnidadeExisteAsync(unidadeId))
                 return NotFound(new { message = "Unidade médica não encontrada." });
 
-            var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId);
-
-            if (paciente == null)
-                return NotFound();
+            var paciente = await _pacienteService.BuscarPorIdAsync(unidadeId, id);
+            if (paciente == null) return NotFound();
 
             var dto = MapToDto(paciente);
             GenerateItemLinks(dto, unidadeId);
-
             return Ok(dto);
         }
 
@@ -115,26 +102,25 @@ namespace Medix.Controllers
         [HttpPost(Name = "CreatePaciente")]
         public async Task<ActionResult<PacienteDto>> PostPaciente(int unidadeId, [FromBody] PacienteCreateDto input)
         {
-            if (!await UnidadeExisteAsync(unidadeId))
+            if (!await _pacienteService.UnidadeExisteAsync(unidadeId))
                 return NotFound(new { message = "Unidade médica não encontrada." });
 
-            var paciente = new Paciente
-            {
-                NomeCompleto = input.NomeCompleto,
-                CPF = input.CPF,
-                DataNascimento = input.DataNascimento,
-                Email = input.Email,
-                Telefone = input.Telefone,
-                Endereco = input.Endereco,
-                UnidadeMedicaId = unidadeId
-            };
+            var paciente = await _pacienteService.CriarAsync(
+                unidadeId, input.NomeCompleto, input.CPF,
+                input.DataNascimento, input.Email, input.Telefone, input.Endereco);
 
-            _context.Pacientes.Add(paciente);
-            await _context.SaveChangesAsync();
+            await _auditoria.RegistrarAsync(
+                "Paciente", paciente.Id, "CREATE",
+                User.Identity?.Name ?? "anonimo",
+                new Dictionary<string, object?>
+                {
+                    ["nomeCompleto"] = paciente.NomeCompleto,
+                    ["cpf"] = paciente.CPF,
+                    ["unidadeId"] = unidadeId
+                });
 
             var dto = MapToDto(paciente);
             GenerateItemLinks(dto, unidadeId);
-
             return CreatedAtRoute("GetPacienteById", new { unidadeId, id = paciente.Id }, dto);
         }
 
@@ -142,27 +128,22 @@ namespace Medix.Controllers
         [HttpPut("{id}", Name = "UpdatePaciente")]
         public async Task<ActionResult<PacienteDto>> PutPaciente(int unidadeId, int id, [FromBody] PacienteUpdateDto input)
         {
-            if (!await UnidadeExisteAsync(unidadeId))
+            if (!await _pacienteService.UnidadeExisteAsync(unidadeId))
                 return NotFound(new { message = "Unidade médica não encontrada." });
 
-            var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId);
+            var paciente = await _pacienteService.AtualizarAsync(
+                unidadeId, id, input.NomeCompleto, input.CPF,
+                input.DataNascimento, input.Email, input.Telefone, input.Endereco);
 
-            if (paciente == null)
-                return NotFound();
+            if (paciente == null) return NotFound();
 
-            paciente.NomeCompleto = input.NomeCompleto;
-            paciente.CPF = input.CPF;
-            paciente.DataNascimento = input.DataNascimento;
-            paciente.Email = input.Email;
-            paciente.Telefone = input.Telefone;
-            paciente.Endereco = input.Endereco;
-
-            await _context.SaveChangesAsync();
+            await _auditoria.RegistrarAsync(
+                "Paciente", id, "UPDATE",
+                User.Identity?.Name ?? "anonimo",
+                new Dictionary<string, object?> { ["nomeCompleto"] = paciente.NomeCompleto });
 
             var dto = MapToDto(paciente);
             GenerateItemLinks(dto, unidadeId);
-
             return Ok(dto);
         }
 
@@ -170,27 +151,23 @@ namespace Medix.Controllers
         [HttpDelete("{id}", Name = "DeletePaciente")]
         public async Task<IActionResult> DeletePaciente(int unidadeId, int id)
         {
-            if (!await UnidadeExisteAsync(unidadeId))
+            if (!await _pacienteService.UnidadeExisteAsync(unidadeId))
                 return NotFound(new { message = "Unidade médica não encontrada." });
 
-            var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId);
+            var excluido = await _pacienteService.ExcluirAsync(unidadeId, id);
+            if (!excluido) return NotFound();
 
-            if (paciente == null)
-                return NotFound();
-
-            _context.Pacientes.Remove(paciente);
-            await _context.SaveChangesAsync();
+            await _auditoria.RegistrarAsync(
+                "Paciente", id, "DELETE",
+                User.Identity?.Name ?? "anonimo",
+                new Dictionary<string, object?> { ["id"] = id });
 
             return NoContent();
         }
 
         // --- Auxiliares ---
 
-        private async Task<bool> UnidadeExisteAsync(int unidadeId) =>
-            await _context.UnidadesMedicas.AnyAsync(u => u.Id == unidadeId);
-
-        private static PacienteDto MapToDto(Paciente p) => new()
+        private static PacienteDto MapToDto(Models.Paciente p) => new()
         {
             Id = p.Id,
             NomeCompleto = p.NomeCompleto,

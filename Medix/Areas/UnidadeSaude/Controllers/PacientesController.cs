@@ -122,38 +122,45 @@ namespace Medix.Areas.UnidadeSaude.Controllers
             return View(paciente);
         }
 
-        // POST: Pacientes/Edit/5
-        [HttpPost]
+        // POST: Pacientes/Edit/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,NomeCompleto,CPF,DataNascimento,Email,Telefone,Endereco")] Paciente paciente)
         {
             var unidadeId = await GetUserUnidadeMedicaIdAsync();
             if (id != paciente.Id || unidadeId == null) return NotFound();
 
-            // VINCULA O PACIENTE À UNIDADE DO USUÁRIO
-            paciente.UnidadeMedicaId = unidadeId.Value;
             ModelState.Remove("UnidadeMedica");
 
             if (ModelState.IsValid)
             {
+                // Busca o registro rastreado pelo EF — garante permissão e evita conflito de tracking
+                var pacienteExistente = await _context.Pacientes
+                    .FirstOrDefaultAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId.Value);
+
+                if (pacienteExistente == null) return NotFound();
+
+                // Atualiza apenas os campos editáveis na entidade já rastreada
+                pacienteExistente.NomeCompleto = paciente.NomeCompleto;
+                pacienteExistente.CPF = paciente.CPF;
+                pacienteExistente.DataNascimento = paciente.DataNascimento;
+                pacienteExistente.Email = paciente.Email;
+                pacienteExistente.Telefone = paciente.Telefone;
+                pacienteExistente.Endereco = paciente.Endereco;
+
                 try
                 {
-                    // VERIFICA NOVAMENTE SE O USUÁRIO TEM PERMISSÃO para editar este paciente!!!!
-                    var hasPermission = await _context.Pacientes
-            .AnyAsync(p => p.Id == id && p.UnidadeMedicaId == unidadeId.Value);
-
-                    if (!hasPermission) return NotFound();
-
-                    _context.Update(paciente);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Pacientes.Any(e => e.Id == paciente.Id)) return NotFound();
+                    if (!_context.Pacientes.Any(e => e.Id == id)) return NotFound();
                     else throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(paciente);
         }
 

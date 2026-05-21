@@ -1,7 +1,8 @@
-﻿using Medix.Data;
+using Medix.Data;
 using Medix.Models;
 using Medix.Models.Dtos;
 using Medix.Services;
+using Medix.Services.Audit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -11,38 +12,41 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Medix.Controllers
 {
-    [Route("api/unidades")] // Define a rota base da API
-    [ApiController]       // Marca como um controller de API
-    [Authorize]           // Garante que só usuários logados possam acessar
-    [EnableRateLimiting("api")] // 100 requisições por minuto por IP
+    [Route("api/unidades")]
+    [ApiController]
+    [Authorize]
+    [EnableRateLimiting("api")]
     public class UnidadesMedicasApiController : ControllerBase
     {
         private readonly IUnidadeService _unidadeService;
-        private readonly LinkGenerator _linkGenerator; // Injetado para gerar URLs
+        private readonly LinkGenerator _linkGenerator;
+        private readonly IAuditoriaService _auditoria;
 
-        public UnidadesMedicasApiController(IUnidadeService unidadeService, LinkGenerator linkGenerator)
+        public UnidadesMedicasApiController(
+            IUnidadeService unidadeService,
+            LinkGenerator linkGenerator,
+            IAuditoriaService auditoria)
         {
             _unidadeService = unidadeService;
             _linkGenerator = linkGenerator;
+            _auditoria = auditoria;
         }
 
         // GET: api/unidades
         [HttpGet(Name = "GetUnidades")]
-        // Agora retorna o DTO com links
         public async Task<ActionResult<PagedResultWithLinks<UnidadeMedicaDto>>> GetUnidadesMedicas(
-            [FromQuery] string? nome = null,        // Filtro por nome
-            [FromQuery] StatusUnidade? status = null, // Filtro por status
-            [FromQuery] string sortBy = "Nome",      // Campo para ordenar (padrão: Nome)
-            [FromQuery] string sortDirection = "ASC", // Direção da ordenação (padrão: ASC)
-            [FromQuery] int page = 1,                 // Página atual (padrão: 1)
-            [FromQuery] int pageSize = 10)            // Itens por página (padrão: 10)
+            [FromQuery] string? nome = null,
+            [FromQuery] StatusUnidade? status = null,
+            [FromQuery] string sortBy = "Nome",
+            [FromQuery] string sortDirection = "ASC",
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
             var pagedResult = await _unidadeService.BuscarAsync(nome, status, sortBy, sortDirection, page, pageSize);
 
             var totalItems = pagedResult.TotalCount;
             var items = pagedResult.Items;
 
-            // Mapear Model pra DTO e gerar links pra cada item
             var itemDtos = items.Select(item =>
             {
                 var dto = new UnidadeMedicaDto
@@ -56,38 +60,33 @@ namespace Medix.Controllers
                     Status = item.Status,
                     DataCadastro = item.DataCadastro
                 };
-                GenerateItemLinks(dto); // Chama a função pra criar os links HATEOAS do item
+                GenerateItemLinks(dto);
                 return dto;
             }).ToList();
 
-            // Cria o objeto de resultado paginado com links
             var result = new PagedResultWithLinks<UnidadeMedicaDto>
             {
-                Items = itemDtos, // Agora usa a lista de DTOs
+                Items = itemDtos,
                 TotalCount = totalItems,
                 PageNumber = page,
                 PageSize = pageSize,
                 TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
             };
 
-            GeneratePagingLinks(result, nome, status, sortBy, sortDirection); // Chama a função pra criar os links HATEOAS de paginação
+            GeneratePagingLinks(result, nome, status, sortBy, sortDirection);
 
             return Ok(result);
         }
 
         // GET: api/unidades/5
-        [HttpGet("{id}", Name = "GetUnidadeById")] // Nomeei a rota pra gerar link pra ela
-        // Agora retorna o DTO com links
+        [HttpGet("{id}", Name = "GetUnidadeById")]
         public async Task<ActionResult<UnidadeMedicaDto>> GetUnidadeMedica(int id)
         {
             var unidadeMedica = await _unidadeService.BuscarPorIdAsync(id);
 
             if (unidadeMedica == null)
-            {
                 return NotFound();
-            }
 
-            // Mapear Model pra DTO
             var dto = new UnidadeMedicaDto
             {
                 Id = unidadeMedica.Id,
@@ -99,7 +98,7 @@ namespace Medix.Controllers
                 Status = unidadeMedica.Status,
                 DataCadastro = unidadeMedica.DataCadastro
             };
-            GenerateItemLinks(dto); // Gerar links HATEOAS pro item
+            GenerateItemLinks(dto);
 
             return Ok(dto);
         }
@@ -122,6 +121,20 @@ namespace Medix.Controllers
                 DataCadastro = unidade.DataCadastro
             };
             GenerateItemLinks(result);
+
+            // --- Auditoria ---
+            await _auditoria.RegistrarAsync(
+                entidade: "UnidadeMedica",
+                entidadeId: unidade.Id,
+                operacao: "CREATE",
+                realizadoPor: User.Identity?.Name ?? "anonimo",
+                detalhe: new Dictionary<string, object?>
+                {
+                    ["nome"] = unidade.Nome,
+                    ["cnpj"] = unidade.CNPJ,
+                    ["emailAdmin"] = unidade.EmailAdmin,
+                    ["status"] = unidade.Status.ToString()
+                });
 
             return CreatedAtRoute("GetUnidadeById", new { id = result.Id }, result);
         }
@@ -148,6 +161,20 @@ namespace Medix.Controllers
             };
             GenerateItemLinks(result);
 
+            // --- Auditoria ---
+            await _auditoria.RegistrarAsync(
+                entidade: "UnidadeMedica",
+                entidadeId: id,
+                operacao: "UPDATE",
+                realizadoPor: User.Identity?.Name ?? "anonimo",
+                detalhe: new Dictionary<string, object?>
+                {
+                    ["nome"] = unidade.Nome,
+                    ["cnpj"] = unidade.CNPJ,
+                    ["emailAdmin"] = unidade.EmailAdmin,
+                    ["status"] = unidade.Status.ToString()
+                });
+
             return Ok(result);
         }
 
@@ -160,6 +187,14 @@ namespace Medix.Controllers
             if (!excluido)
                 return NotFound();
 
+            // --- Auditoria ---
+            await _auditoria.RegistrarAsync(
+                entidade: "UnidadeMedica",
+                entidadeId: id,
+                operacao: "DELETE",
+                realizadoPor: User.Identity?.Name ?? "anonimo",
+                detalhe: new Dictionary<string, object?> { ["id"] = id });
+
             return NoContent();
         }
 
@@ -167,67 +202,45 @@ namespace Medix.Controllers
 
         private void GenerateItemLinks(UnidadeMedicaDto dto)
         {
-            // Link pro próprio recurso ("self")
             dto.Links.Add(new LinkDto(
                 _linkGenerator.GetUriByName(HttpContext, "GetUnidadeById", new { id = dto.Id }) ?? string.Empty,
-                "self",
-                "GET"));
+                "self", "GET"));
 
-            // Link pra editar ("update")
             dto.Links.Add(new LinkDto(
                 _linkGenerator.GetUriByName(HttpContext, "UpdateUnidade", new { id = dto.Id }) ?? string.Empty,
-                "update",
-                "PUT"));
+                "update", "PUT"));
 
-            // Link pra excluir ("delete")
             dto.Links.Add(new LinkDto(
                 _linkGenerator.GetUriByName(HttpContext, "DeleteUnidade", new { id = dto.Id }) ?? string.Empty,
-                "delete",
-                "DELETE"));
+                "delete", "DELETE"));
         }
 
         private void GeneratePagingLinks(PagedResultWithLinks<UnidadeMedicaDto> result, string? nome, StatusUnidade? status, string sortBy, string sortDirection)
         {
-            // Link pra página atual ("self")
             result.Links.Add(new LinkDto(
                 _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber, pageSize = result.PageSize }) ?? string.Empty,
-                "self",
-                "GET"));
+                "self", "GET"));
 
-            // Link pra primeira página ("first")
             if (result.PageNumber > 1)
             {
                 result.Links.Add(new LinkDto(
                    _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = 1, pageSize = result.PageSize }) ?? string.Empty,
-                   "first",
-                   "GET"));
-            }
+                   "first", "GET"));
 
-            // Link pra página anterior ("previous")
-            if (result.PageNumber > 1)
-            {
                 result.Links.Add(new LinkDto(
                    _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber - 1, pageSize = result.PageSize }) ?? string.Empty,
-                   "previous",
-                   "GET"));
+                   "previous", "GET"));
             }
 
-            // Link pra próxima página ("next")
             if (result.PageNumber < result.TotalPages)
             {
                 result.Links.Add(new LinkDto(
                    _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.PageNumber + 1, pageSize = result.PageSize }) ?? string.Empty,
-                   "next",
-                   "GET"));
-            }
+                   "next", "GET"));
 
-            // Link pra última página ("last")
-            if (result.PageNumber < result.TotalPages)
-            {
                 result.Links.Add(new LinkDto(
                    _linkGenerator.GetUriByName(HttpContext, "GetUnidades", new { nome, status, sortBy, sortDirection, page = result.TotalPages, pageSize = result.PageSize }) ?? string.Empty,
-                   "last",
-                   "GET"));
+                   "last", "GET"));
             }
         }
     }
