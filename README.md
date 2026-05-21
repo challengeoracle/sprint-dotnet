@@ -34,52 +34,52 @@ Isso garante um ecossistema seguro onde **os dados de cada unidade são isolados
 O projeto segue os princípios da **Clean Architecture** com separação em quatro camadas bem definidas. A dependência sempre flui de fora para dentro — Apresentação → Aplicação → Domínio, com Infraestrutura implementando as interfaces do Domínio.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        APRESENTAÇÃO                             │
-│                                                                 │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌─────────────┐  │
-│  │   MVC (Admin)    │  │  Area UnidadeSaude│  │  Web API    │  │
-│  │ UnidadesMedicas  │  │ Pacientes         │  │ /api/       │  │
-│  │ HomeController   │  │ Colaboradores     │  │ unidades    │  │
-│  │                  │  │ Dashboard         │  │ pacientes   │  │
-│  └────────┬─────────┘  └────────┬──────────┘  │ colaborad.  │  │
-│           │                     │             │ auditoria   │  │
-└───────────┼─────────────────────┼─────────────┼─────────────┘  │
-            │                     │             │
-┌───────────▼─────────────────────▼─────────────▼─────────────┐
-│                        APLICAÇÃO                              │
-│                                                               │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌───────────┐  │
-│  │  IUnidadeService │  │  IPacienteService │  │ IAuditoria│  │
-│  │  UnidadeService  │  │  IColaboradorSvc  │  │ Service   │  │
-│  └──────────────────┘  └──────────────────┘  └───────────┘  │
-│                                                               │
-│  DTOs: UnidadeMedicaDto · PacienteDto · ColaboradorDto        │
-│  ViewModels: DashboardViewModel · CreateUnidadeViewModel      │
+┌──────────────────────────────────────────────────────────────┐
+│                        APRESENTAÇÃO                          │
+│                                                              │
+│ ┌──────────────────┐  ┌──────────────────┐  ┌─────────────┐  │
+│ │   MVC (Admin)    │  │ Area UnidadeSaude│  │  Web API    │  │
+│ │ UnidadesMedicas  │  │ Pacientes        │  │ /api/       │  │
+│ │ HomeController   │  │ Colaboradores    │  │ unidades    │  │
+│ │                  │  │ Dashboard        │  │ pacientes   │  │
+│ └─────────┬────────┘  └────────┬─────────┘  │ colaborad.  │  │
+│           │                    │            │ auditoria   │  │
+└───────────┼────────────────────┼──────────────────┼──────────┘
+            │                    │                  │
+┌───────────▼────────────────────▼──────────────────▼──────────┐
+│                        APLICAÇÃO                             │
+│                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌────────────┐  │
+│  │  IUnidadeService │  │ IPacienteService │  │ IAuditoria │  │
+│  │  UnidadeService  │  │ IColaboradorSvc  │  │ Service    │  │
+│  └──────────────────┘  └──────────────────┘  └────────────┘  │
+│                                                              │
+│  DTOs: UnidadeMedicaDto · PacienteDto · ColaboradorDto       │
+│  ViewModels: DashboardViewModel · CreateUnidadeViewModel     │
 └───────────────────────────────────┬──────────────────────────┘
                                     │
 ┌───────────────────────────────────▼──────────────────────────┐
-│                        INFRAESTRUTURA                         │
-│                                                               │
+│                        INFRAESTRUTURA                        │
+│                                                              │
 │  ┌─────────────────────────┐   ┌──────────────────────────┐  │
 │  │   EF Core (Oracle)      │   │   MongoDB                │  │
-│  │  ApplicationDbContext   │   │  MongoDbContext           │  │
+│  │  ApplicationDbContext   │   │  MongoDbContext          │  │
 │  │  Migrations             │   │  LogsAuditoria (coleção) │  │
 │  └─────────────────────────┘   └──────────────────────────┘  │
-│                                                               │
-│  Repositórios:                                                │
+│                                                              │
+│  Repositórios:                                               │
 │  IRepository<T> → Repository<T> (genérico)                   │
 │  IUnidadeMedicaRepository → UnidadeMedicaRepository          │
 │  IPacienteRepository     → PacienteRepository                │
 │  IColaboradorRepository  → ColaboradorRepository             │
-│                                                               │
+│                                                              │
 │  ASP.NET Core Identity · Health Checks · Serilog             │
 │  OpenTelemetry (Tracing + Metrics + Prometheus)              │
 └───────────────────────────────────┬──────────────────────────┘
                                     │
 ┌───────────────────────────────────▼──────────────────────────┐
-│                          DOMÍNIO                              │
-│                                                               │
+│                          DOMÍNIO                             │
+│                                                              │
 │  Entidades: UnidadeMedica · Paciente · Colaborador           │
 │  Enums:     StatusUnidade · TipoColaborador                  │
 │  Audit:     LogAuditoria (documento MongoDB)                 │
@@ -274,6 +274,8 @@ cd Medix
 
 # MongoDB local
 dotnet user-secrets set "MongoDb:ConnectionString" "mongodb://localhost:27017"
+
+# ou
 
 # MongoDB Atlas (nuvem)
 dotnet user-secrets set "MongoDb:ConnectionString" "mongodb+srv://usuario:senha@cluster.mongodb.net/"
